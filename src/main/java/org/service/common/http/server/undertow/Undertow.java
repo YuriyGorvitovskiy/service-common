@@ -67,6 +67,7 @@ public class Undertow implements HttpServer {
                         .addMapping("/*")));
 
             manager.deploy();
+
             return manager.start();
         } catch (Throwable ex) {
             throw new RuntimeException(ex);
