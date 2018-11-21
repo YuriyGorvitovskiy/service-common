@@ -18,7 +18,7 @@ pipeline {
             steps {
                 setBuildStatus("Build in progress...", "PENDING")
 
-                sh './gradlew clean build publishToMavenLocal'
+                sh './gradlew -Dtest.org.service.common.message.kafka.producer.topic=${KAFKA_TOPIC} -Dtest.org.service.common.message.kafka.producer.properties.bootstrap.servers=${KAFKA_HOST}:${KAFKA_PORT} -Dtest.org.service.common.message.kafka.consumer.topic=${KAFKA_TOPIC} -Dtest.org.service.common.message.kafka.consumer.properties.bootstrap.servers=${KAFKA_HOST}:${KAFKA_PORT} clean build publishToMavenLocal'
             }
         }
     }

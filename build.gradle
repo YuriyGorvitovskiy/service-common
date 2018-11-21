@@ -21,8 +21,12 @@ repositories {
 dependencies {
     compile group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: '2.9.7'
 
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.2'
+
+    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.0.0'
 
     compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version: '2.27'
     compile group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.27'
@@ -48,12 +52,16 @@ task javadocJar(type: Jar) {
     classifier = 'javadoc'
 }
 
+test {
+    systemProperties System.getProperties()
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'org.gorvitovskiy.yuriy'
             artifactId = 'service-common'
-            version = '1.0.1'
+            version = '1.0.2'
 
             from components.java
             artifact sourcesJar
