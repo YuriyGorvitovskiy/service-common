@@ -10,7 +10,7 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-public class Configuration_Test {
+public class Configuration_UnitTest {
 
     public class BaseConfig {
         public String  stringvalue = "default";
