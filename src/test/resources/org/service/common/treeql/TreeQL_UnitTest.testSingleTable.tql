@@ -1,0 +1,4 @@
+type: task
+fields: [id, name, assigned_to]
+conditions:
+    id: = 12

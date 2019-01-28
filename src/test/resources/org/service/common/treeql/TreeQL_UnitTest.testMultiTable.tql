@@ -1,0 +1,12 @@
+type: story
+fields: [id, name, managed_by]
+links:
+    ^story_id:
+        type: task
+        fields: [id, name, assigned_to]
+        sorting:
+            assigned_to: ASC
+conditions:
+    id: IN [12, 13, 14]
+sorting:
+    managed_by: ASC
