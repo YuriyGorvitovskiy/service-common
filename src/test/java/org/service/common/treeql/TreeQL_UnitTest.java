@@ -35,7 +35,7 @@ public class TreeQL_UnitTest {
                 .field("name")
                 .field("assigned_to")
                 .sort("assigned_to", Order.ASCENDING))
-            .condition("id", Operation.IN, 12L, 13L, 14L)
+            .condition("id", Operation.IN, 13L, 14L, 15L)
             .sort("managed_by", Order.ASCENDING);
 
         // Validate
