@@ -1,0 +1,25 @@
+{
+    "$id": {
+        "$path": "story:id",
+        "$filter": [13,14,15]
+    },
+    "name": {
+        "$path": "name"
+    },
+    "managed_by": {
+        "$path": "managed_by",
+        "$sort": "asc"
+    },
+    "tasks": {
+        "$id": {
+            "$path": "^task:story_id"
+        },
+        "name": {
+            "$path": "name"
+        },
+        "assigned_to": {
+            "$path": "assigned_to",
+            "$sort": "asc"
+        }
+    }
+}

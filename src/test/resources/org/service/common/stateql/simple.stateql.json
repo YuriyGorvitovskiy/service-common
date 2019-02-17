@@ -1,0 +1,12 @@
+{
+    "$id": {
+        "$path": "task:id",
+        "$filter": 12
+    },
+    "name": {
+        "$path": "name"
+    },
+    "assigned_to": {
+        "$path": "assigned_to"
+    }
+}
