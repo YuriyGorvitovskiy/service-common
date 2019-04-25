@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Primitive extends Extendable<Primitive, String> {
 
-    public static class Access<E> extends Extendable.Access<Primitive, E> {
+    public static class Access<X> extends Extendable.Access<Primitive, X> {
         private static int counter = 0;
 
         public Access() {
@@ -13,7 +13,7 @@ public class Primitive extends Extendable<Primitive, String> {
         }
 
         @Override
-        protected E create(Primitive instance) {
+        protected X create(Primitive instance) {
             throw new UnsupportedOperationException(instance.id);
         }
     }

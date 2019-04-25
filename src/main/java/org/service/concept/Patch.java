@@ -3,26 +3,22 @@ package org.service.concept;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Patch<ID> {
+public class Patch {
 
     public enum Operation {
-        INSERT,
         UPSERT,
         UPDATE,
         DELETE
     }
 
-    public final Operation           operation;
+    public final Operation              operation;
 
-    public final Model               type;
+    public final Batch                  batch;
 
-    public final ID                  id;
+    public final Map<Attribute, Object> attributes = new HashMap<>();
 
-    public final Map<String, Object> attributes = new HashMap<>();
-
-    public Patch(Operation operation, Model type, ID id) {
+    public Patch(Operation operation, Batch batch) {
         this.operation = operation;
-        this.type      = type;
-        this.id        = id;
+        this.batch     = batch;
     }
 }

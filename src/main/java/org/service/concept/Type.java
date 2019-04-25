@@ -5,6 +5,12 @@ import java.util.Map;
 
 public class Type extends Extendable<Type, String> {
 
+    public static interface Name {
+        public static final String TYPE      = "type";
+        public static final String ATTRIBUTE = "attribute";
+        public static final String PRIMITIVE = "primitive";
+    }
+
     public static abstract class Access<E> extends Extendable.Access<Attribute, E> {
         private static int counter = 0;
 
