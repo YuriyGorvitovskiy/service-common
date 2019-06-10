@@ -1,6 +1,5 @@
 package org.service.concept;
 
-import java.util.Collection;
 import java.util.List;
 
 public class Filter {
@@ -26,9 +25,9 @@ public class Filter {
     public final Comparison   comparison;
     public final List<Object> values;
 
-    public Filter(Attribute attribute, Comparison comparison, Collection<Object> values) {
-        this.attribute  = attribute;
+    public Filter(Attribute attribute, Comparison comparison, List<Object> values) {
+        this.attribute = attribute;
         this.comparison = comparison;
-        this.values     = values;
+        this.values = values;
     }
 }

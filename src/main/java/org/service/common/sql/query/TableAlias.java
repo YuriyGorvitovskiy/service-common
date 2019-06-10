@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.service.common.sql.IColumn;
+import org.service.common.sql.IPseudoSql;
 import org.service.common.sql.ITable;
 import org.service.common.sql.schema.Table;
 

@@ -2,6 +2,7 @@ package org.service.common.sql.query;
 
 import org.service.common.sql.DataType;
 import org.service.common.sql.IColumn;
+import org.service.common.sql.IPseudoSql;
 
 public class SelectColumn implements IColumn, IPseudoSql {
 

@@ -1,5 +1,7 @@
 package org.service.common.sql.query;
 
+import org.service.common.sql.IPseudoSql;
+
 public class Join implements IPseudoSql {
     public enum Kind {
         FROM,

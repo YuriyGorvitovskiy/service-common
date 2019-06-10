@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.service.common.sql.IPseudoSql;
 import org.service.common.sql.ITable;
 
 import com.google.common.collect.Iterables;

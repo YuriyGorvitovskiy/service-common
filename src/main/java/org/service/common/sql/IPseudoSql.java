@@ -1,4 +1,4 @@
-package org.service.common.sql.query;
+package org.service.common.sql;
 
 public interface IPseudoSql {
 
