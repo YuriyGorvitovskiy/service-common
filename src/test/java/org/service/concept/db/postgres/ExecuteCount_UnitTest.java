@@ -60,7 +60,7 @@ public class ExecuteCount_UnitTest {
                      "  FROM table" + NEW_LINE +
                      " WHERE " + NEW_LINE +
                      "   NOT   ( col1 = ?" + NEW_LINE +
-                     "       AND   ( col2 IN (?, ?, ?)" + NEW_LINE +
+                     "       AND  ( col2 IN (?, ?, ?)" + NEW_LINE +
                      "            OR col3 IS NOT NULL)" + NEW_LINE +
                      "       AND col4 < ?" + NEW_LINE +
                      "       AND col5 <= ?)",
