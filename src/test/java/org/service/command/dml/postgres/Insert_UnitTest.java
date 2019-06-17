@@ -1,33 +1,37 @@
-package org.service.concept.db.postgres;
+package org.service.command.dml.postgres;
 
 import static org.junit.Assert.assertEquals;
-import static org.service.concept.db.postgres.Execute.NEW_LINE;
+import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
 import org.junit.Test;
-import org.service.concept.db.event.RequestInsert;
+import org.service.command.dml.InsertParams;
+import org.service.command.dml.postgres.Insert;
 
-import com.google.common.collect.ImmutableMap;
+import io.vavr.Tuple;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Stream;
 
-public class ExecuteInsert_UnitTest {
+public class Insert_UnitTest {
 
     @Test
+
     public void test_buildSql_simple() {
         // Setup
-        ExecuteInsert subject = new ExecuteInsert();
+        Insert       subject = new Insert();
 
-        RequestInsert request = new RequestInsert("table",
-                ImmutableMap.<String, Object>builder()
-                    .put("col1", 12)
-                    .put("col2", "Hello")
-                    .put("col3", "World")
-                    .build());
+        InsertParams request = new InsertParams("table",
+                Stream.of(
+                        Tuple.<String, Object>of("col1", 12),
+                        Tuple.<String, Object>of("col2", "Hello"),
+                        Tuple.<String, Object>of("col3", "World"))
+                    .collect(LinkedHashMap.<String, Object>collector()));
 
         // Execute
         String result = subject.buildSql(request);
 
         // Verify
         assertEquals("INSERT INTO table (col1, col2, col3)" + NEW_LINE +
-                     "VALUES (?, ?, ?)",
+                "VALUES (?, ?, ?)",
                 result);
 
     }

@@ -1,13 +1,11 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-import java.util.List;
+import io.vavr.collection.Seq;
 
-import com.google.common.collect.ImmutableList;
+public class Or implements Predicate {
+    public final Seq<Predicate> conditions;
 
-public class ConditionOr implements Condition {
-    public final ImmutableList<Condition> conditions;
-
-    public ConditionOr(List<Condition> conditions) {
-        this.conditions = ImmutableList.copyOf(conditions);
+    public Or(Seq<Predicate> conditions) {
+        this.conditions = conditions;
     }
 }

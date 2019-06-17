@@ -1,60 +1,62 @@
-package org.service.concept.db.postgres;
+package org.service.command.dml.postgres;
 
 import static org.junit.Assert.assertEquals;
-import static org.service.concept.db.postgres.Execute.NEW_LINE;
+import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import org.junit.Test;
-import org.service.concept.db.event.Condition;
-import org.service.concept.db.event.ConditionAnd;
-import org.service.concept.db.event.ConditionEqual;
-import org.service.concept.db.event.ConditionIn;
-import org.service.concept.db.event.ConditionLess;
-import org.service.concept.db.event.ConditionMore;
-import org.service.concept.db.event.ConditionNot;
-import org.service.concept.db.event.ConditionNull;
-import org.service.concept.db.event.ConditionOr;
+import org.service.command.dml.DMLParams;
+import org.service.command.dml.DMLResult;
+import org.service.command.dml.postgres.DMLCommand;
+import org.service.command.dml.predicate.And;
+import org.service.command.dml.predicate.Equal;
+import org.service.command.dml.predicate.In;
+import org.service.command.dml.predicate.Less;
+import org.service.command.dml.predicate.More;
+import org.service.command.dml.predicate.Not;
+import org.service.command.dml.predicate.Null;
+import org.service.command.dml.predicate.Or;
+import org.service.command.dml.predicate.Predicate;
 
-import com.google.common.collect.ImmutableList;
+import io.vavr.collection.List;
 
-public class Execute_UnitTest {
+public class DMLCommand_UnitTest {
+    static class DMLCommandMock implements DMLCommand<DMLParams, DMLResult> {
+        @Override
+        public DMLResult apply(DMLParams params, Connection db) {
+            return null;
+        }
+    };
 
     @Test
     public void test_buildConditionSql() {
         // Setup
-        Execute<String, String> subject   = new Execute<String, String>() {
+        DMLCommandMock subject   = new DMLCommandMock();
 
-                                              @Override
-                                              public String execute(Connection db, String request) throws SQLException {
-                                                  return null;
-                                              }
-                                          };
+        Predicate      condition = new Not(
+                new And(List.of(
+                        new Equal("col1", 22),
+                        new Or(List.of(
+                                new In("col2", List.of(1, 2, 3)),
+                                new Not(new Null("col3")))),
+                        new Less("col4", 22),
+                        new Not(new More("col5", 12.4)))));
 
-        Condition               condition = new ConditionNot(
-                new ConditionAnd(ImmutableList.of(
-                        new ConditionEqual("col1", 22),
-                        new ConditionOr(ImmutableList.of(
-                                new ConditionIn("col2", ImmutableList.of(1, 2, 3)),
-                                new ConditionNot(new ConditionNull("col3")))),
-                        new ConditionLess("col4", 22),
-                        new ConditionNot(new ConditionMore("col5", 12.4)))));
-
-        StringBuilder           sb        = new StringBuilder();
+        StringBuilder  sb        = new StringBuilder();
         sb.append("SELECT *\n");
         sb.append("  FROM table\n");
         sb.append(" WHERE ");
-        subject.buildConditionSql(sb, 7, false, condition, false);
+        sb.append(subject.buildConditionSql(7, false, condition, false));
 
         assertEquals("SELECT *" + NEW_LINE +
-                     "  FROM table" + NEW_LINE +
-                     " WHERE " + NEW_LINE +
-                     "   NOT   ( col1 = ?" + NEW_LINE +
-                     "       AND   ( col2 IN (?, ?, ?)" + NEW_LINE +
-                     "            OR col3 IS NOT NULL)" + NEW_LINE +
-                     "       AND col4 < ?" + NEW_LINE +
-                     "       AND col5 <= ?)",
+                "  FROM table" + NEW_LINE +
+                " WHERE " + NEW_LINE +
+                "   NOT   ( col1 = ?" + NEW_LINE +
+                "       AND   ( col2 IN (?, ?, ?)" + NEW_LINE +
+                "            OR col3 IS NOT NULL)" + NEW_LINE +
+                "       AND col4 < ?" + NEW_LINE +
+                "       AND col5 <= ?)",
                 sb.toString());
 
     }

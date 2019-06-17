@@ -1,17 +1,15 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-import java.util.Map;
+import io.vavr.collection.Map;
 
-import com.google.common.collect.ImmutableMap;
+public class UpsertParams implements DMLParams {
+    public final String              table;
+    public final Map<String, Object> keys;
+    public final Map<String, Object> values;
 
-public class RequestMerge {
-    public final String                       table;
-    public final ImmutableMap<String, Object> keys;
-    public final ImmutableMap<String, Object> values;
-
-    public RequestMerge(String table, Map<String, Object> keys, Map<String, Object> values) {
+    public UpsertParams(String table, Map<String, Object> keys, Map<String, Object> values) {
         this.table = table;
-        this.keys = ImmutableMap.copyOf(keys);
-        this.values = ImmutableMap.copyOf(values);
+        this.keys = keys;
+        this.values = values;
     }
 }

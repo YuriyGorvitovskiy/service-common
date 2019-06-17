@@ -1,10 +1,10 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-public class Sorting {
+public class OrderBy {
     public final String  column;
     public final boolean ascending;
 
-    public Sorting(String column, boolean ascending) {
+    public OrderBy(String column, boolean ascending) {
         this.column = column;
         this.ascending = ascending;
     }

@@ -1,20 +1,20 @@
-package org.service.concept.db.postgres;
+package org.service.command.dml.postgres;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.service.concept.db.event.RequestCount;
-import org.service.concept.db.event.ResponseForCount;
+import org.service.command.dml.CountParams;
+import org.service.command.dml.CountResult;
 
-public class ExecuteCount implements Execute<RequestCount, ResponseForCount> {
+public class Count implements DMLCommand<CountParams, CountResult> {
     static final String SELECT_COUNT_FROM = "SELECT COUNT(*)" + NEW_LINE +
-                                            "  FROM ";
+            "  FROM ";
     static final String WHERE             = " WHERE ";
 
     @Override
-    public ResponseForCount execute(Connection db, RequestCount request) throws SQLException {
+    public CountResult apply(CountParams request, Connection db) {
         String sql = buildSql(request);
         try (PreparedStatement ps = db.prepareStatement(sql)) {
             setValues(ps, request);
@@ -26,24 +26,26 @@ public class ExecuteCount implements Execute<RequestCount, ResponseForCount> {
                 if (rs.next()) {
                     throw new SQLException("More then one row for COUNT(*) query:\n" + sql);
                 }
-                return new ResponseForCount(count);
+                return new CountResult(count);
             }
+        } catch (SQLException ex) {
+            throw new RuntimeException(sql, ex);
         }
 
     }
 
-    String buildSql(RequestCount request) {
+    String buildSql(CountParams request) {
         StringBuilder sb = new StringBuilder();
         sb.append(SELECT_COUNT_FROM);
         sb.append(request.table);
         sb.append(NEW_LINE);
         sb.append(WHERE);
 
-        buildConditionSql(sb, 7, false, request.condition, false);
+        sb.append(buildConditionSql(7, false, request.filter, false));
         return sb.toString();
     }
 
-    void setValues(PreparedStatement ps, RequestCount request) throws SQLException {
-        setConditionValues(ps, 1, request.condition);
+    void setValues(PreparedStatement ps, CountParams request) throws SQLException {
+        setConditionValues(ps, 1, request.filter);
     }
 }

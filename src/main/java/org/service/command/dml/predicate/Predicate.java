@@ -1,4 +1,4 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-public interface Condition {
+public interface Predicate {
 }

@@ -1,15 +1,13 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-import java.util.Map;
+import io.vavr.collection.Map;
 
-import com.google.common.collect.ImmutableMap;
+public class InsertParams implements DMLParams {
+    public final String         table;
+    public final Map<String, ?> values;
 
-public class RequestInsert {
-    public final String                       table;
-    public final ImmutableMap<String, Object> values;
-
-    public RequestInsert(String table, Map<String, Object> values) {
+    public InsertParams(String table, Map<String, ?> values) {
         this.table = table;
-        this.values = ImmutableMap.copyOf(values);
+        this.values = values;
     }
 }

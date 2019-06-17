@@ -1,25 +1,27 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-import java.util.List;
+import org.service.command.dml.predicate.OrderBy;
+import org.service.command.dml.predicate.Page;
+import org.service.command.dml.predicate.Predicate;
 
-import com.google.common.collect.ImmutableList;
+import io.vavr.collection.Seq;
 
-public class RequestSelect {
-    public final String                 table;
-    public final ImmutableList<String>  columns;
-    public final Condition              condition;
-    public final ImmutableList<Sorting> sortings;
-    public final Page                   page;
+public class SelectParams implements DMLParams {
+    public final String       table;
+    public final Seq<String>  columns;
+    public final Predicate    filter;
+    public final Seq<OrderBy> orderBy;
+    public final Page         page;
 
-    public RequestSelect(String table,
-                         List<String> columns,
-                         Condition condition,
-                         List<Sorting> sortings,
-                         Page page) {
+    public SelectParams(String table,
+                        Seq<String> columns,
+                        Predicate filter,
+                        Seq<OrderBy> sortings,
+                        Page page) {
         this.table = table;
-        this.columns = ImmutableList.copyOf(columns);
-        this.condition = condition;
-        this.sortings = ImmutableList.copyOf(sortings);
+        this.columns = columns;
+        this.filter = filter;
+        this.orderBy = sortings;
         this.page = page;
     }
 }

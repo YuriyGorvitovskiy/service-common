@@ -1,11 +1,13 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-public class RequestDelete {
+import org.service.command.dml.predicate.Predicate;
+
+public class DeleteParams implements DMLParams {
     public final String    table;
-    public final Condition condition;
+    public final Predicate filter;
 
-    public RequestDelete(String table, Condition condition) {
+    public DeleteParams(String table, Predicate filter) {
         this.table = table;
-        this.condition = condition;
+        this.filter = filter;
     }
 }

@@ -1,9 +1,9 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-public class ConditionNot implements Condition {
-    public final Condition condition;
+public class Not implements Predicate {
+    public final Predicate condition;
 
-    public ConditionNot(Condition condition) {
+    public Not(Predicate condition) {
         this.condition = condition;
     }
 }

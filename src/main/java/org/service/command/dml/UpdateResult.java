@@ -1,10 +1,10 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-public class ResponseForChange {
+public class UpdateResult implements DMLResult {
 
     public final long updates;
 
-    public ResponseForChange(long updates) {
+    public UpdateResult(long updates) {
         this.updates = updates;
     }
 }

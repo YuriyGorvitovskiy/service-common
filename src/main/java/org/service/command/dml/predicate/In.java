@@ -1,16 +1,14 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-import java.util.List;
+import io.vavr.collection.Seq;
 
-import com.google.common.collect.ImmutableList;
+public class In implements Predicate {
+    public final String column;
+    public final Seq<?> values;
 
-public class ConditionIn implements Condition {
-    public final String                column;
-    public final ImmutableList<Object> values;
-
-    public ConditionIn(String column, List<?> values) {
+    public In(String column, Seq<?> values) {
         this.column = column;
-        this.values = ImmutableList.copyOf(values);
+        this.values = values;
     }
 
 }

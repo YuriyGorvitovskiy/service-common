@@ -1,10 +1,10 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-public class ConditionEqual implements Condition {
+public class Equal implements Predicate {
     public final String column;
     public final Object value;
 
-    public ConditionEqual(String column, Object value) {
+    public Equal(String column, Object value) {
         this.column = column;
         this.value = value;
     }

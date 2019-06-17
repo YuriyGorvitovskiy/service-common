@@ -1,9 +1,9 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-public class ConditionNull implements Condition {
+public class Null implements Predicate {
     public final String column;
 
-    public ConditionNull(String column) {
+    public Null(String column) {
         this.column = column;
     }
 }

@@ -1,10 +1,10 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-public class ConditionMore implements Condition {
+public class More implements Predicate {
     public final String column;
     public final Object value;
 
-    public ConditionMore(String column, Object value) {
+    public More(String column, Object value) {
         this.column = column;
         this.value = value;
     }

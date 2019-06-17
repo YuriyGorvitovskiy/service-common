@@ -1,16 +1,14 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-import java.util.List;
+import io.vavr.collection.Map;
+import io.vavr.collection.Seq;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+public class SelectResult implements DMLResult {
 
-public class ResponseForSelect {
+    public final Seq<Map<String, Object>> records;
 
-    public final ImmutableList<ImmutableMap<String, Object>> records;
-
-    public ResponseForSelect(List<ImmutableMap<String, Object>> records) {
-        this.records = ImmutableList.copyOf(records);
+    public SelectResult(Seq<Map<String, Object>> records) {
+        this.records = records;
     }
 
 }

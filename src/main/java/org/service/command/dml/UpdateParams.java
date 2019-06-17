@@ -1,17 +1,17 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-import java.util.Map;
+import org.service.command.dml.predicate.Predicate;
 
-import com.google.common.collect.ImmutableMap;
+import io.vavr.collection.Map;
 
-public class RequestUpdate {
-    public final String                       table;
-    public final ImmutableMap<String, Object> values;
-    public final Condition                    condition;
+public class UpdateParams implements DMLParams {
+    public final String              table;
+    public final Map<String, Object> values;
+    public final Predicate           filter;
 
-    public RequestUpdate(String table, Map<String, Object> values, Condition condition) {
+    public UpdateParams(String table, Map<String, Object> values, Predicate filter) {
         this.table = table;
-        this.values = ImmutableMap.copyOf(values);
-        this.condition = condition;
+        this.values = values;
+        this.filter = filter;
     }
 }

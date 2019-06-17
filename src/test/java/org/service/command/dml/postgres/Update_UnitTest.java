@@ -1,84 +1,87 @@
-package org.service.concept.db.postgres;
+package org.service.command.dml.postgres;
 
 import static org.junit.Assert.assertEquals;
-import static org.service.concept.db.postgres.Execute.NEW_LINE;
+import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
 import org.junit.Test;
-import org.service.concept.db.event.ConditionAnd;
-import org.service.concept.db.event.ConditionEqual;
-import org.service.concept.db.event.ConditionIn;
-import org.service.concept.db.event.ConditionLess;
-import org.service.concept.db.event.ConditionMore;
-import org.service.concept.db.event.ConditionNot;
-import org.service.concept.db.event.ConditionNull;
-import org.service.concept.db.event.ConditionOr;
-import org.service.concept.db.event.RequestUpdate;
+import org.service.command.dml.UpdateParams;
+import org.service.command.dml.postgres.Update;
+import org.service.command.dml.predicate.And;
+import org.service.command.dml.predicate.Equal;
+import org.service.command.dml.predicate.In;
+import org.service.command.dml.predicate.Less;
+import org.service.command.dml.predicate.More;
+import org.service.command.dml.predicate.Not;
+import org.service.command.dml.predicate.Null;
+import org.service.command.dml.predicate.Or;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import io.vavr.Tuple;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 
-public class ExecuteUpdate_UnitTest {
+public class Update_UnitTest {
 
     @Test
     public void test_buildSql_simple() {
         // Setup
-        ExecuteUpdate subject = new ExecuteUpdate();
+        Update       subject = new Update();
 
-        RequestUpdate request = new RequestUpdate("table",
-                ImmutableMap.<String, Object>builder()
-                    .put("col1", 12)
-                    .put("col2", "Hello")
-                    .put("col3", "World")
-                    .build(),
-                new ConditionEqual("col1", 22));
+        UpdateParams request = new UpdateParams("table",
+                Stream.of(
+                        Tuple.<String, Object>of("col1", 12),
+                        Tuple.<String, Object>of("col2", "Hello"),
+                        Tuple.<String, Object>of("col3", "World"))
+                    .collect(LinkedHashMap.<String, Object>collector()),
+                new Equal("col1", 22));
 
         // Execute
         String result = subject.buildSql(request);
 
         // Verify
         assertEquals("UPDATE table" + NEW_LINE +
-                     "   SET col1 = ?," + NEW_LINE +
-                     "       col2 = ?," + NEW_LINE +
-                     "       col3 = ?" + NEW_LINE +
-                     " WHERE col1 = ?",
+                "   SET col1 = ?," + NEW_LINE +
+                "       col2 = ?," + NEW_LINE +
+                "       col3 = ?" + NEW_LINE +
+                " WHERE col1 = ?",
                 result);
     }
 
     @Test
     public void test_buildSql_complex() {
         // Setup
-        ExecuteUpdate subject = new ExecuteUpdate();
+        Update       subject = new Update();
 
-        RequestUpdate request = new RequestUpdate(
+        UpdateParams request = new UpdateParams(
                 "table",
-                ImmutableMap.<String, Object>builder()
-                    .put("col1", 12)
-                    .put("col2", "Hello")
-                    .put("col3", "World")
-                    .build(),
-                new ConditionNot(
-                        new ConditionAnd(ImmutableList.of(
-                                new ConditionEqual("col1", 22),
-                                new ConditionOr(ImmutableList.of(
-                                        new ConditionIn("col2", ImmutableList.of(1, 2, 3)),
-                                        new ConditionNot(new ConditionNull("col3")))),
-                                new ConditionLess("col4", 22),
-                                new ConditionNot(new ConditionMore("col5", 12.4))))));
+                Stream.of(
+                        Tuple.<String, Object>of("col1", 12),
+                        Tuple.<String, Object>of("col2", "Hello"),
+                        Tuple.<String, Object>of("col3", "World"))
+                    .collect(LinkedHashMap.<String, Object>collector()),
+                new Not(
+                        new And(List.of(
+                                new Equal("col1", 22),
+                                new Or(List.of(
+                                        new In("col2", List.of(1, 2, 3)),
+                                        new Not(new Null("col3")))),
+                                new Less("col4", 22),
+                                new Not(new More("col5", 12.4))))));
 
         // Execute
         String result = subject.buildSql(request);
 
         // Verify
         assertEquals("UPDATE table" + NEW_LINE +
-                     "   SET col1 = ?," + NEW_LINE +
-                     "       col2 = ?," + NEW_LINE +
-                     "       col3 = ?" + NEW_LINE +
-                     " WHERE " + NEW_LINE +
-                     "   NOT   ( col1 = ?" + NEW_LINE +
-                     "       AND   ( col2 IN (?, ?, ?)" + NEW_LINE +
-                     "            OR col3 IS NOT NULL)" + NEW_LINE +
-                     "       AND col4 < ?" + NEW_LINE +
-                     "       AND col5 <= ?)",
+                "   SET col1 = ?," + NEW_LINE +
+                "       col2 = ?," + NEW_LINE +
+                "       col3 = ?" + NEW_LINE +
+                " WHERE " + NEW_LINE +
+                "   NOT   ( col1 = ?" + NEW_LINE +
+                "       AND   ( col2 IN (?, ?, ?)" + NEW_LINE +
+                "            OR col3 IS NOT NULL)" + NEW_LINE +
+                "       AND col4 < ?" + NEW_LINE +
+                "       AND col5 <= ?)",
                 result);
 
     }

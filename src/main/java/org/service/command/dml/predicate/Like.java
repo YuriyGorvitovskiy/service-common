@@ -1,10 +1,10 @@
-package org.service.concept.db.event;
+package org.service.command.dml.predicate;
 
-public class ConditionLike implements Condition {
+public class Like implements Predicate {
     public final String column;
     public final Object value;
 
-    public ConditionLike(String column, Object value) {
+    public Like(String column, Object value) {
         this.column = column;
         this.value = value;
     }

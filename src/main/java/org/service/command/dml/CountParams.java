@@ -1,12 +1,14 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-public class RequestCount {
+import org.service.command.dml.predicate.Predicate;
+
+public class CountParams implements DMLParams {
     public final String    table;
-    public final Condition condition;
+    public final Predicate filter;
 
-    public RequestCount(String table,
-                        Condition condition) {
+    public CountParams(String table,
+                       Predicate filter) {
         this.table = table;
-        this.condition = condition;
+        this.filter = filter;
     }
 }

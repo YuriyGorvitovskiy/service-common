@@ -1,28 +1,30 @@
-package org.service.concept.db.postgres;
+package org.service.command.dml.postgres;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.service.concept.db.event.RequestUpdate;
-import org.service.concept.db.event.ResponseForChange;
+import org.service.command.dml.UpdateParams;
+import org.service.command.dml.UpdateResult;
 
-public class ExecuteUpdate implements Execute<RequestUpdate, ResponseForChange> {
+public class Update implements DMLCommand<UpdateParams, UpdateResult> {
     static final String UPDATE = "UPDATE ";
     static final String SET    = "   SET ";
     static final String WHERE  = " WHERE ";
     static final String INDENT = "       ";
 
     @Override
-    public ResponseForChange execute(Connection db, RequestUpdate request) throws SQLException {
+    public UpdateResult apply(UpdateParams request, Connection db) {
         String sql = buildSql(request);
         try (PreparedStatement ps = db.prepareStatement(sql)) {
             setValues(ps, request);
-            return new ResponseForChange(ps.executeUpdate());
+            return new UpdateResult(ps.executeUpdate());
+        } catch (SQLException ex) {
+            throw new RuntimeException(sql, ex);
         }
     }
 
-    String buildSql(RequestUpdate request) {
+    String buildSql(UpdateParams request) {
         StringBuilder sb = new StringBuilder();
         sb.append(UPDATE);
         sb.append(request.table);
@@ -39,15 +41,15 @@ public class ExecuteUpdate implements Execute<RequestUpdate, ResponseForChange> 
         }
         sb.append(NEW_LINE);
         sb.append(WHERE);
-        buildConditionSql(sb, 7, false, request.condition, false);
+        sb.append(buildConditionSql(7, false, request.filter, false));
         return sb.toString();
     }
 
-    void setValues(PreparedStatement ps, RequestUpdate request) throws SQLException {
+    void setValues(PreparedStatement ps, UpdateParams request) throws SQLException {
         int index = 1;
         for (Object value : request.values.values()) {
             ps.setObject(index++, value);
         }
-        setConditionValues(ps, index, request.condition);
+        setConditionValues(ps, index, request.filter);
     }
 }

@@ -1,10 +1,10 @@
-package org.service.concept.db.event;
+package org.service.command.dml;
 
-public class ResponseForCount {
+public class CountResult implements DMLResult {
 
     public final long count;
 
-    public ResponseForCount(long count) {
+    public CountResult(long count) {
         this.count = count;
     }
 
