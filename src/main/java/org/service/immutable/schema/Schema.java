@@ -8,104 +8,55 @@ import io.vavr.collection.Stream;
 
 public class Schema {
 
+    public final Long               id;
     public final String             name;
 
-    @NotNull
     public final Map<String, Table> tables;
 
-    Schema(String name, @NotNull Map<String, Table> tables) {
+    Schema(Long id, String name, @NotNull Map<String, Table> tables) {
+        this.id = id;
         this.name = name;
-        this.tables = tables.mapValues(t -> new Table(this, t.name, t.columns, t.primary, t.indexes));
+        this.tables = tables.mapValues(t -> new Table(this, t.id, t.name, t.columns, t.primary, t.indexes));
+    }
+
+    public Schema id(Long id) {
+        return new Schema(id, this.name, this.tables);
     }
 
     public Schema name(String name) {
-        return new Schema(name, this.tables);
+        return new Schema(this.id, name, this.tables);
     }
 
     public Schema table(Table table) {
-        return new Schema(this.name, this.tables.put(table.name, table));
+        return new Schema(this.id, this.name, this.tables.put(table.name, table));
     }
 
     public Schema table(String name) {
-        return new Schema(this.name, this.tables.put(name, Table.of(name)));
+        return new Schema(this.id, this.name, this.tables.put(name, Table.of().name(name)));
     }
 
     public Schema tables(Table... tables) {
-        return new Schema(this.name, this.tables.merge(Stream.of(tables).collect(HashMap.collector(t -> t.name, t -> t))));
+        return new Schema(this.id,
+                this.name,
+                this.tables.merge(Stream.of(tables).collect(HashMap.collector(t -> t.name, t -> t))));
     }
 
     public Schema tables(Stream<Table> tables) {
-        return new Schema(this.name, this.tables.merge(tables.collect(HashMap.collector(t -> t.name, t -> t))));
+        return new Schema(this.id, this.name, this.tables.merge(tables.collect(HashMap.collector(t -> t.name, t -> t))));
     }
 
+    // For fluent definition
     public static Schema of() {
-        return new Schema(null, HashMap.empty());
+        return new Schema(null, null, HashMap.empty());
     }
 
-    public static Schema of(String name) {
-        return new Schema(name, HashMap.empty());
-    }
-
+    // For hard coded definition
     public static Schema of(String name, Table... tables) {
-        return new Schema(name, Stream.of(tables).collect(HashMap.collector(t -> t.name, t -> t)));
+        return new Schema(null, name, Stream.of(tables).collect(HashMap.collector(t -> t.name, t -> t)));
     }
 
-    public static Schema of(String name, Stream<Table> tables) {
-        return new Schema(name, tables.collect(HashMap.collector(t -> t.name, t -> t)));
+    // For programming definition
+    public static Schema of(Long id, String name, Stream<Table> tables) {
+        return new Schema(id, name, tables.collect(HashMap.collector(t -> t.name, t -> t)));
     }
-
-    /*
-    public Schema table(Table table)
-    
-    public static class Builder implements Supplier<Schema> {
-    
-        String                name;
-    
-        Stream<Table.Builder> tables = Stream.empty();
-    
-        Builder() {
-        }
-    
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-    
-        public Builder table(Table.Builder table) {
-            tables = tables.append(table);
-            return this;
-        }
-    
-        public Builder tables(Table.Builder... table) {
-            tables = tables.appendAll(Stream.of(table));
-            return this;
-        }
-    
-        public Builder tables(Stream<Table.Builder> table) {
-            tables = tables.appendAll(table);
-            return this;
-        }
-    
-        @Override
-        public Schema get() {
-            return new Schema(name, tables);
-        }
-    }
-    
-    public static Builder of() {
-        return new Builder();
-    }
-    
-    public static Builder of(String name) {
-        return of().name(name);
-    }
-    
-    public static Builder of(String name, Table.Builder... tables) {
-        return of().name(name).tables(tables);
-    }
-    
-    public static Builder of(String name, Stream<Table.Builder> tables) {
-        return of().name(name).tables(tables);
-    }
-    */
 }

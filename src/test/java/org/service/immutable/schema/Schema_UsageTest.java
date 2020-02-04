@@ -4,9 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
+import org.service.immutable.data.Row;
 
-import io.vavr.Tuple2;
-import io.vavr.Tuple3;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
@@ -20,10 +19,10 @@ public class Schema_UsageTest {
                 "main",
                 Table.of("t1",
                         Stream.of(
-                                Column.of("id").type(DataType.INTEGER),
-                                Column.of("name").type(DataType.LABEL),
-                                Column.of("code").type(DataType.LABEL),
-                                Column.of("modified_at").type(DataType.TIMESTAMP)),
+                                Column.of().name("id").type(DataType.INTEGER),
+                                Column.of().name("name").type(DataType.LABEL),
+                                Column.of().name("code").type(DataType.LABEL),
+                                Column.of().name("modified_at").type(DataType.TIMESTAMP)),
                         Index.of("pk_t1").column("id"),
                         Stream.of(Index.of("ix_t1_name_code").columns("name", "code"))),
                 Table.of()
@@ -37,10 +36,10 @@ public class Schema_UsageTest {
             .table(Table.of()
                 .name("t3")
                 .columns(
-                        Column.of("id").type(DataType.INTEGER),
-                        Column.of("name").type(DataType.LABEL),
-                        Column.of("code").type(DataType.LABEL),
-                        Column.of("modified_at").type(DataType.TIMESTAMP))
+                        Column.of("id", DataType.INTEGER),
+                        Column.of("name", DataType.LABEL),
+                        Column.of("code", DataType.LABEL),
+                        Column.of("modified_at", DataType.TIMESTAMP))
                 .primary("pk_t3", "id")
                 .indexes(Index.of("ix_t3_name_code").columns("name", "code")));
 
@@ -55,83 +54,102 @@ public class Schema_UsageTest {
     @Test
     public void restoreSchema() {
         // Setup
-        Object[][]                                schemaInputs         = {
-                { 1, "main" },
+        Row[]                                  schemaRows           = new Row[] {
+                Row.of("main", "schemas", HashMap.of("id", 1L, "name", "main"))
         };
 
-        Object[][]                                tableInputs          = {
-                { 1, 1, "t1" },
-                { 2, 1, "t2" },
-                { 3, 1, "t3" },
+        Row[]                                  tableRows            = new Row[] {
+                Row.of("main", "tables", HashMap.of("id", 1L, "schema", 1L, "name", "t1")),
+                Row.of("main", "tables", HashMap.of("id", 2L, "schema", 1L, "name", "t2")),
+                Row.of("main", "tables", HashMap.of("id", 3L, "schema", 1L, "name", "t3")),
         };
 
-        Object[][]                                columnInputs         = {
-                { 1, 1, "id", DataType.INTEGER },
-                { 2, 1, "name", DataType.INTEGER },
-                { 3, 1, "code", DataType.INTEGER },
-                { 4, 1, "modified_at", DataType.INTEGER },
-                { 5, 2, "id", DataType.INTEGER },
-                { 6, 2, "name", DataType.INTEGER },
-                { 7, 2, "code", DataType.INTEGER },
-                { 8, 2, "modified_at", DataType.INTEGER },
-                { 9, 3, "id", DataType.INTEGER },
-                { 10, 3, "name", DataType.INTEGER },
-                { 11, 3, "code", DataType.INTEGER },
-                { 12, 3, "modified_at", DataType.INTEGER },
+        Row[]                                  columnRows           = new Row[] {
+                Row.of("main", "columns", HashMap.of("id", 1L, "table", 1L, "name", "id", "type", DataType.INTEGER)),
+                Row.of("main", "columns", HashMap.of("id", 2L, "table", 1L, "name", "name", "type", DataType.LABEL)),
+                Row.of("main", "columns", HashMap.of("id", 3L, "table", 1L, "name", "code", "type", DataType.LABEL)),
+                Row.of("main", "columns", HashMap.of("id", 4L, "table", 1L, "name", "modified_at", "type", DataType.TIMESTAMP)),
+
+                Row.of("main", "columns", HashMap.of("id", 5L, "table", 2L, "name", "id", "type", DataType.INTEGER)),
+                Row.of("main", "columns", HashMap.of("id", 6L, "table", 2L, "name", "name", "type", DataType.LABEL)),
+                Row.of("main", "columns", HashMap.of("id", 7L, "table", 2L, "name", "code", "type", DataType.LABEL)),
+                Row.of("main", "columns", HashMap.of("id", 8L, "table", 2L, "name", "modified_at", "type", DataType.TIMESTAMP)),
+
+                Row.of("main", "columns", HashMap.of("id", 9L, "table", 3L, "name", "id", "type", DataType.INTEGER)),
+                Row.of("main", "columns", HashMap.of("id", 10L, "table", 3L, "name", "name", "type", DataType.LABEL)),
+                Row.of("main", "columns", HashMap.of("id", 11L, "table", 3L, "name", "code", "type", DataType.LABEL)),
+                Row.of("main",
+                        "columns",
+                        HashMap.of("id", 12L, "table", 3L, "name", "modified_at", "type", DataType.TIMESTAMP)),
         };
 
-        Object[][]                                indexInputs          = {
-                { 1, 1, "pk_t1", true },
-                { 2, 1, "ix_t1_name_code", false },
-                { 3, 2, "pk_t2", true },
-                { 4, 2, "ix_t2_name_code", false },
-                { 5, 3, "pk_t3", true },
-                { 6, 3, "ix_t3_name_code", false },
+        Row[]                                  indexRows            = new Row[] {
+                Row.of("main", "indexes", HashMap.of("id", 1L, "table", 1L, "primary", true, "name", "pk_t1")),
+                Row.of("main", "indexes", HashMap.of("id", 2L, "table", 1L, "primary", false, "name", "ix_t1_name_code")),
+                Row.of("main", "indexes", HashMap.of("id", 3L, "table", 2L, "primary", true, "name", "pk_t2")),
+                Row.of("main", "indexes", HashMap.of("id", 4L, "table", 2L, "primary", false, "name", "ix_t2_name_code")),
+                Row.of("main", "indexes", HashMap.of("id", 5L, "table", 3L, "primary", true, "name", "pk_t3")),
+                Row.of("main", "indexes", HashMap.of("id", 6L, "table", 3L, "primary", false, "name", "ix_t3_name_code")),
         };
 
-        Object[][]                                index2columnInputs   = {
-                { 1, "id" },
-                { 2, "name" },
-                { 2, "code" },
-                { 3, "id" },
-                { 4, "name" },
-                { 4, "code" },
-                { 5, "id" },
-                { 6, "name" },
-                { 6, "code" },
+        Row[]                                  index2ColumnRows     = new Row[] {
+                Row.of("main", "index_column", HashMap.of("index", 1L, "column", 1L, "order", 0)),
+                Row.of("main", "index_column", HashMap.of("index", 2L, "column", 2L, "order", 0)),
+                Row.of("main", "index_column", HashMap.of("index", 2L, "column", 3L, "order", 1)),
+
+                Row.of("main", "index_column", HashMap.of("index", 3L, "column", 5L, "order", 0)),
+                Row.of("main", "index_column", HashMap.of("index", 4L, "column", 6L, "order", 0)),
+                Row.of("main", "index_column", HashMap.of("index", 4L, "column", 7L, "order", 1)),
+
+                Row.of("main", "index_column", HashMap.of("index", 5L, "column", 9L, "order", 0)),
+                Row.of("main", "index_column", HashMap.of("index", 6L, "column", 10L, "order", 0)),
+                Row.of("main", "index_column", HashMap.of("index", 6L, "column", 11L, "order", 1)),
         };
 
-        Map<Integer, Stream<Object[]>>            indexId2Columns      = Stream.of(index2columnInputs)
-            .groupBy(i -> (Integer) i[0]);
+        Map<Long, String>                      id2ColumnName        = Stream.of(columnRows)
+            .collect(HashMap.collector(
+                    r -> r.asLong("id"),
+                    r -> r.asString("name")));
 
-        Map<Integer, Map<Boolean, Stream<Index>>> table2Primary2Idexes = Stream.of(indexInputs)
-            .map(i -> new Tuple3<Integer, Boolean, Index>(
-                    (Integer) i[1],
-                    (Boolean) i[3],
-                    Index.of((String) i[2],
-                            indexId2Columns.get((Integer) i[0]).get().map(c -> (String) c[1]))))
-            .groupBy(t -> t._1)
-            .mapValues(s -> s.groupBy(g -> g._2).mapValues(v -> v.map(z -> z._3)));
+        Map<Long, Stream<Column>>              table2Columns        = Stream.of(columnRows)
+            .groupBy(r -> r.asLong("table"))
+            .mapValues(s -> s
+                .map(r -> Column.of(
+                        r.asLong("id"),
+                        r.asString("name"),
+                        r.as("type"))));
 
-        Map<Integer, Stream<Column>>              table2Columns        = Stream.of(columnInputs)
-            .map(i -> new Tuple2<Integer, Column>(
-                    (Integer) i[1],
-                    Column.of((String) i[2], (DataType) i[3])))
-            .groupBy(t -> t._1)
-            .mapValues(s -> s.map(z -> z._2));
+        Map<Long, Stream<String>>              indexId2ColumnNames  = Stream.of(index2ColumnRows)
+            .sortBy(r -> r.asInt("order"))
+            .groupBy(r -> r.asLong("index"))
+            .mapValues(s -> s.map(
+                    r -> id2ColumnName.get(r.asLong("column")).get()));
 
-        Map<Integer, Stream<Table>>               schemaId2tables      = Stream.of(tableInputs)
-            .map(i -> new Tuple2<Integer, Table>(
-                    (Integer) i[1],
-                    Table.of((String) i[2],
-                            table2Columns.get((Integer) i[0]).get(),
-                            table2Primary2Idexes.get((Integer) i[0]).get().get(true).get().get(0),
-                            table2Primary2Idexes.get((Integer) i[0]).get().get(false).get())))
-            .groupBy(t -> t._1)
-            .mapValues(s -> s.map(z -> z._2));
+        Map<Long, Map<Boolean, Stream<Index>>> table2Primary2Idexes = Stream.of(indexRows)
+            .groupBy(r -> r.asLong("table"))
+            .mapValues(s -> s
+                .groupBy(r -> r.asBool("primary"))
+                .mapValues(p -> p
+                    .map(r -> Index.of(
+                            r.asLong("id"),
+                            r.asString("name"),
+                            indexId2ColumnNames.get(r.asLong("id")).get()))));
 
-        Map<String, Schema>                       name2Schema          = Stream.of(schemaInputs)
-            .map(i -> Schema.of((String) i[1], schemaId2tables.get((Integer) i[0]).get()))
+        Map<Long, Stream<Table>>               schemaId2tables      = Stream.of(tableRows)
+            .groupBy(r -> r.asLong("schema"))
+            .mapValues(s -> s
+                .map(r -> Table.of(
+                        r.asLong("id"),
+                        r.asString("name"),
+                        table2Columns.get(r.asLong("id")).getOrElse(Stream.empty()),
+                        table2Primary2Idexes.get(r.asLong("id")).get().get(true).fold(() -> null, i -> i.get(0)),
+                        table2Primary2Idexes.get(r.asLong("id")).get().get(false).getOrElse(Stream.empty()))));
+
+        Map<String, Schema>                    name2Schema          = Stream.of(schemaRows)
+            .map(r -> Schema.of(
+                    r.asLong("id"),
+                    r.asString("name"),
+                    schemaId2tables.get(r.asLong("id")).getOrElse(Stream.empty())))
             .collect(HashMap.collector(s -> s.name, s -> s));
 
         // Verify
