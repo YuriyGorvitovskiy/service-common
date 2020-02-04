@@ -1,8 +1,8 @@
 package org.service.common.treeql;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.common.treeql.Condition.Operation;
 import org.service.common.treeql.Sorting.Order;
 import org.service.common.util.ResourceString;

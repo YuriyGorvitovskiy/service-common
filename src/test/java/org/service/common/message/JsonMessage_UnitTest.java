@@ -1,8 +1,8 @@
 package org.service.common.message;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.common.test.Asserts;
 import org.service.common.util.ResourceString;
 

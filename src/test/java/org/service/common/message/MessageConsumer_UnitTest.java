@@ -1,23 +1,21 @@
 package org.service.common.message;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.service.common.message.kafka.KafkaMessageConsumer;
 import org.service.common.message.kafka.KafkaMessageProducer;
 import org.service.common.translator.JsonTranslator;
 
 public class MessageConsumer_UnitTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void create_kafka() {
+    void create_kafka() {
         // Setup
         MessageConsumerConfig config = new MessageConsumerConfig();
         config.engine = KafkaMessageProducer.NAME;
@@ -38,7 +36,7 @@ public class MessageConsumer_UnitTest {
     }
 
     @Test
-    public void create_unknown() {
+    void create_unknown() {
         // Setup
         MessageConsumerConfig config = new MessageConsumerConfig();
         config.engine = "unknown";
@@ -46,10 +44,8 @@ public class MessageConsumer_UnitTest {
         @SuppressWarnings("unchecked")
         JsonTranslator<String, JsonMessage> translator = Mockito.mock(JsonTranslator.class);
 
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("Unsupported message consumer engine: unknown");
-
         //Execute
-        MessageConsumer.create(config, translator);
+        RuntimeException error = assertThrows(RuntimeException.class, () -> MessageConsumer.create(config, translator));
+        assertTrue(error.getMessage().contains("Unsupported message consumer engine: unknown"));
     }
 }

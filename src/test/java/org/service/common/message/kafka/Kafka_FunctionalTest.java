@@ -1,6 +1,6 @@
 package org.service.common.message.kafka;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.service.common.config.Configurator;
 import org.service.common.message.JsonMessage;
 import org.service.common.message.MessageConsumerConfig;
@@ -75,15 +75,15 @@ public class Kafka_FunctionalTest {
     KafkaMessageProducer<Message, Json> producer;
     KafkaMessageConsumer<Message, Json> consumer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         MessageProducerConfig producerConfig = Configurator.extract(System.getProperties(),
-                                                                    "test.org.service.common.message.kafka.producer",
-                                                                    new MessageProducerConfig());
+                "test.org.service.common.message.kafka.producer",
+                new MessageProducerConfig());
 
         MessageConsumerConfig consumerConfig = Configurator.extract(System.getProperties(),
-                                                                    "test.org.service.common.message.kafka.consumer",
-                                                                    new MessageConsumerConfig());
+                "test.org.service.common.message.kafka.consumer",
+                new MessageConsumerConfig());
 
         producer = new KafkaMessageProducer<>(producerConfig, new Transmuter());
         consumer = new KafkaMessageConsumer<>(consumerConfig, new Transmuter());
@@ -121,8 +121,8 @@ public class Kafka_FunctionalTest {
         msg3.id = producer.getLastOffset();
 
         // Receive Messages
-        List<Message> recieved = new ArrayList<>();
-        String interrupt = "Iterrupt";
+        List<Message> recieved  = new ArrayList<>();
+        String        interrupt = "Iterrupt";
         try {
             consumer.run(msg1.id, (msg) -> {
                 recieved.add(msg);

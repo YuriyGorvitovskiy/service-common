@@ -1,11 +1,10 @@
 package org.service.command.dml.postgres;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.command.dml.CountParams;
-import org.service.command.dml.postgres.Count;
 import org.service.command.dml.predicate.And;
 import org.service.command.dml.predicate.Equal;
 import org.service.command.dml.predicate.In;
@@ -20,7 +19,7 @@ import io.vavr.collection.List;
 public class Count_UnitTest {
 
     @Test
-    public void test_buildSql_simple() {
+    void buildSql_simple() {
         // Setup
         Count       subject = new Count();
 
@@ -38,7 +37,7 @@ public class Count_UnitTest {
     }
 
     @Test
-    public void test_buildSql_complex() {
+    void buildSql_complex() {
         // Setup
         Count       subject = new Count();
 

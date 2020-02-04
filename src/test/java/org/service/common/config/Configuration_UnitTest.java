@@ -1,14 +1,14 @@
 package org.service.common.config;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Configuration_UnitTest {
 
@@ -47,7 +47,7 @@ public class Configuration_UnitTest {
     }
 
     @Test
-    public void test_extract_string() {
+    void extract_string() {
         // Setup
         Properties props = new Properties();
         props.setProperty("org.config.test.stringvalue", "string-value");
@@ -106,7 +106,7 @@ public class Configuration_UnitTest {
     }
 
     @Test
-    public void test_extract_objects() {
+    void extract_objects() {
         // Setup
         Properties props = new Properties();
         props.put("org.config.test.stringvalue", "string-value");
@@ -155,7 +155,7 @@ public class Configuration_UnitTest {
     }
 
     @Test
-    public void test_extract_default() {
+    void extract_default() {
         // Execute
         Properties props = new Properties();
         props.setProperty("org.config.test.intvalue", "wrong value");

@@ -1,8 +1,8 @@
 package org.service.common.sql.dml;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.common.sql.DataType;
 import org.service.common.sql.query.Literal;
 import org.service.common.sql.schema.Column;

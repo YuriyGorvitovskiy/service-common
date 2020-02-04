@@ -1,11 +1,11 @@
 package org.service.command.dml.postgres;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
 import java.sql.Connection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.command.dml.DMLParams;
 import org.service.command.dml.DMLResult;
 import org.service.command.dml.postgres.DMLCommand;
@@ -30,7 +30,7 @@ public class DMLCommand_UnitTest {
     };
 
     @Test
-    public void test_buildConditionSql() {
+    void buildConditionSql() {
         // Setup
         DMLCommandMock subject   = new DMLCommandMock();
 

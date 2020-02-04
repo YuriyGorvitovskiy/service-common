@@ -1,9 +1,9 @@
 package org.service.command.dml.postgres;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.command.dml.DeleteParams;
 import org.service.command.dml.postgres.Delete;
 import org.service.command.dml.predicate.And;
@@ -20,7 +20,7 @@ import io.vavr.collection.List;
 public class Delete_UnitTest {
 
     @Test
-    public void test_buildSql_simple() {
+    void buildSql_simple() {
         // Setup
         Delete subject = new Delete();
 
@@ -37,7 +37,7 @@ public class Delete_UnitTest {
     }
 
     @Test
-    public void test_buildSql_complex() {
+    void buildSql_complex() {
         // Setup
         Delete subject = new Delete();
 

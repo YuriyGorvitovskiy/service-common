@@ -1,17 +1,13 @@
 package org.service.common.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.service.common.util.ResourceString;
+import org.junit.jupiter.api.Test;
 
 public class ResourceString_UnitString {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void toString_success() {
@@ -19,7 +15,7 @@ public class ResourceString_UnitString {
         ResourceString subject = new ResourceString(ResourceString_UnitString.class, "ResourceString_UnitString.filled.txt");
 
         // Execute
-        String firstCall = subject.toString();
+        String firstCall  = subject.toString();
         String secondCall = subject.toString();
 
         // Verify
@@ -44,14 +40,11 @@ public class ResourceString_UnitString {
         // Setup
         ResourceString subject = new ResourceString(ResourceString_UnitString.class, "not-existing.txt");
 
-        // Rule
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("resource 'not-existing.txt' related to "
-                                + ResourceString_UnitString.class.getName()
-                                + " class");
-
         // Execute
-        subject.toString();
+        RuntimeException error = assertThrows(RuntimeException.class, () -> subject.toString());
+        assertTrue(error.getMessage().contains("resource 'not-existing.txt' related to "
+                + ResourceString_UnitString.class.getName()
+                + " class"));
     }
 
 }

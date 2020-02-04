@@ -1,18 +1,14 @@
 package org.service.common.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.service.common.util.Json;
+import org.junit.jupiter.api.Test;
 
 public class Json_UnitTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void parseDate() {
@@ -25,12 +21,9 @@ public class Json_UnitTest {
 
     @Test
     public void parseDate_failed() {
-        // Rule
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("garbage");
-
         // Execute
-        Json.parseDate("garbage");
+        RuntimeException error = assertThrows(RuntimeException.class, () -> Json.parseDate("garbage"));
+        assertTrue(error.getMessage().contains("garbage"));
     }
 
     @Test

@@ -1,21 +1,19 @@
 package org.service.common.message;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.service.common.message.kafka.KafkaMessageProducer;
 import org.service.common.translator.JsonTranslator;
 
 public class MessageProducer_UnitTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void create_kafka() {
+    void create_kafka() {
         // Setup
         MessageProducerConfig config = new MessageProducerConfig();
         config.engine = KafkaMessageProducer.NAME;
@@ -36,7 +34,7 @@ public class MessageProducer_UnitTest {
     }
 
     @Test
-    public void create_unknown() {
+    void create_unknown() {
         // Setup
         MessageProducerConfig config = new MessageProducerConfig();
         config.engine = "unknown";
@@ -44,10 +42,8 @@ public class MessageProducer_UnitTest {
         @SuppressWarnings("unchecked")
         JsonTranslator<String, JsonMessage> translator = Mockito.mock(JsonTranslator.class);
 
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("Unsupported message producer engine: unknown");
-
         //Execute
-        MessageProducer.create(config, translator);
+        RuntimeException error = assertThrows(RuntimeException.class, () -> MessageProducer.create(config, translator));
+        assertTrue(error.getMessage().contains("Unsupported message producer engine: unknown"));
     }
 }

@@ -1,9 +1,9 @@
 package org.service.command.dml.postgres;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.command.dml.SelectParams;
 import org.service.command.dml.postgres.Select;
 import org.service.command.dml.predicate.And;
@@ -22,7 +22,7 @@ import io.vavr.collection.List;
 public class Select_UnitTest {
 
     @Test
-    public void test_buildSql_simple() {
+    void buildSql_simple() {
         // Setup
         Select subject = new Select();
 
@@ -50,7 +50,7 @@ public class Select_UnitTest {
     }
 
     @Test
-    public void test_buildSql_complex() {
+    void buildSql_complex() {
         // Setup
         Select subject = new Select();
 

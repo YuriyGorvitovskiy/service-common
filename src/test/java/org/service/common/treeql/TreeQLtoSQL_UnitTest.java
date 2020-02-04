@@ -1,9 +1,9 @@
 package org.service.common.treeql;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.service.common.sql.DataType;
 import org.service.common.sql.query.Select;
 import org.service.common.sql.schema.Column;
@@ -17,26 +17,26 @@ public class TreeQLtoSQL_UnitTest {
 
     static Schema schema;
 
-    @BeforeClass
-    public static void createSchema() {
+    @BeforeAll
+    static void createSchema() {
         schema = new Schema("test",
-                            new Table("story",
-                                      new Column("id", DataType.INTEGER),
-                                      new Column("name", DataType.STRING),
-                                      new Column("managed_by", DataType.REFERENCE_EXTERNAL),
-                                      new Column("description", DataType.TEXT)),
+                new Table("story",
+                        new Column("id", DataType.INTEGER),
+                        new Column("name", DataType.STRING),
+                        new Column("managed_by", DataType.REFERENCE_EXTERNAL),
+                        new Column("description", DataType.TEXT)),
 
-                            new Table("task",
-                                      new Column("id", DataType.INTEGER),
-                                      new Column("name", DataType.STRING),
-                                      new Column("story_id", DataType.INTEGER),
-                                      new Column("assigned_to", DataType.REFERENCE_EXTERNAL),
-                                      new Column("description", DataType.TEXT)));
+                new Table("task",
+                        new Column("id", DataType.INTEGER),
+                        new Column("name", DataType.STRING),
+                        new Column("story_id", DataType.INTEGER),
+                        new Column("assigned_to", DataType.REFERENCE_EXTERNAL),
+                        new Column("description", DataType.TEXT)));
 
     }
 
     @Test
-    public void testSingleTable() {
+    void SingleTable() {
         // Setup
         QueryTree   treeQL  = new QueryTree("task")
             .field("id")
@@ -51,11 +51,11 @@ public class TreeQLtoSQL_UnitTest {
 
         // Validate
         assertEquals(new ResourceString(getClass(), "TreeQLtoSQL_UnitTest.testSingleTable.sql").toString(),
-                     select.toPseudoSql(""));
+                select.toPseudoSql(""));
     }
 
     @Test
-    public void testMultiTable() {
+    void MultiTable() {
         // Execute
         QueryTree   treeQL  = new QueryTree("story")
             .field("id")
@@ -76,7 +76,7 @@ public class TreeQLtoSQL_UnitTest {
 
         // Validate
         assertEquals(new ResourceString(getClass(), "TreeQLtoSQL_UnitTest.testMultiTable.sql").toString(),
-                     select.toPseudoSql(""));
+                select.toPseudoSql(""));
     }
 
 }

@@ -1,9 +1,9 @@
 package org.service.command.dml.postgres;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.service.command.dml.postgres.DMLCommand.NEW_LINE;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.service.command.dml.InsertParams;
 import org.service.command.dml.postgres.Insert;
 
@@ -15,7 +15,7 @@ public class Insert_UnitTest {
 
     @Test
 
-    public void test_buildSql_simple() {
+    void buildSql_simple() {
         // Setup
         Insert       subject = new Insert();
 
