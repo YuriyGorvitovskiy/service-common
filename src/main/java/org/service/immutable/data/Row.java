@@ -1,5 +1,7 @@
 package org.service.immutable.data;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.Objects;
 
 import io.vavr.Tuple2;
@@ -7,9 +9,9 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 
 public class Row {
-    final String         schema;
-    final String         table;
-    final Map<String, ?> values;
+    public final String         schema;
+    public final String         table;
+    public final Map<String, ?> values;
 
     Row(String schema,
         String table,
@@ -40,6 +42,26 @@ public class Row {
         return Objects.toString(values.get(column).get());
     }
 
+    public Instant asInstant(String column) {
+        Object v = values.get(column).get();
+        if (null == v) {
+            return null;
+        }
+        if (v instanceof Instant) {
+            return (Instant) v;
+        }
+
+        if (v instanceof Date) {
+            return Instant.ofEpochMilli(((Date) v).getTime());
+        }
+
+        if (v instanceof Number) {
+            return Instant.ofEpochMilli(((Number) v).longValue());
+        }
+
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T as(String column) {
         return (T) values.get(column).get();
@@ -57,4 +79,5 @@ public class Row {
                          Map<String, ?> values) {
         return new Row(schema, table, values);
     }
+
 }
