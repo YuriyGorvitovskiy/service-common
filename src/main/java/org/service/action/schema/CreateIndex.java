@@ -131,4 +131,8 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
                                 new Tuple2<>("id", id),
                                 new Tuple2<>("column", ctx.schema.table.columns.get(c).get().id)))));
     }
+
+    public String primaryDDL(Params params) {
+
+    }
 }

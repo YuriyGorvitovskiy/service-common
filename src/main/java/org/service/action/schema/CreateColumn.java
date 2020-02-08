@@ -2,6 +2,7 @@ package org.service.action.schema;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.function.Supplier;
 
 import org.service.action.Action;
@@ -69,9 +70,7 @@ public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.C
         public final Connection     dbc;
 
         @From(schema = "model", table = "schemas")
-        @Where({
-                @Equal(column = "name", param = "schema")
-        })
+        @Where({ @Equal(column = "name", param = "schema") })
         public final Schema         schema;
 
         Context(Supplier<Long> column_id_counter, Connection dbc, Schema schema) {
@@ -83,20 +82,29 @@ public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.C
     }
 
     @Override
-    public Result apply(Params params, Context ctx) throws Exception {
-        String ddl = "ALTER TABLE " + params.schema + "." + params.table +
-                "ADD COLUMN " + params.name + " " + params.type.postgres();
+    public Result apply(Params params, Context ctx) {
+        String ddl = "ALTER TABLE " + params.schema + "." + params.table + "ADD COLUMN " + columnDDL(params);
         try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
 
-        return Result.of(new Patch(Operation.INSERT,
+        return Result.of(patch(params, ctx));
+
+    }
+
+    public String columnDDL(Params params) {
+        return params.name + " " + params.type.postgres();
+    }
+
+    public Patch patch(Params params, Context ctx) {
+        return new Patch(Operation.insert,
                 Row.of("model",
                         "columns",
                         new Tuple2<>("id", ctx.column_id_counter.get()),
                         new Tuple2<>("table", ctx.schema.table.id),
                         new Tuple2<>("name", params.name),
-                        new Tuple2<>("type", params.type.name()))));
-
+                        new Tuple2<>("type", params.type.name())));
     }
 }

@@ -2,6 +2,7 @@ package org.service.action.schema;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import org.service.action.Action;
 import org.service.action.Equal;
@@ -9,6 +10,8 @@ import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Result;
 import org.service.action.Where;
+import org.service.action.schema.DropTable.Column;
+import org.service.action.schema.DropTable.Index;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
 import org.service.immutable.data.Row;
@@ -27,47 +30,13 @@ public class DropSchema implements IAction<DropSchema.Params, DropSchema.Context
         }
     }
 
-    public static class Column {
+    public static class Table extends DropTable.Table {
 
-        public final Long id;
-
-        Column(Long id) {
-            this.id = id;
-        }
-    }
-
-    public static class Index {
-
-        public final Long id;
-
-        Index(Long id) {
-            this.id = id;
-        }
-    }
-
-    public static class Table {
-
-        public final Long         id;
-
-        public final String       name;
-
-        @From(schema = "model", table = "columns")
-        @Where({
-                @Equal(column = "table", context = "id"),
-        })
-        public final List<Column> columns;
-
-        @From(schema = "model", table = "indexes")
-        @Where({
-                @Equal(column = "table", context = "id"),
-        })
-        public final List<Index>  indexes;
+        public final String name;
 
         Table(Long id, String name, List<Column> columns, List<Index> indexes) {
-            this.id = id;
+            super(id, columns, indexes);
             this.name = name;
-            this.columns = columns;
-            this.indexes = indexes;
         }
     }
 
@@ -76,9 +45,7 @@ public class DropSchema implements IAction<DropSchema.Params, DropSchema.Context
         public final Long        id;
 
         @From(schema = "model", table = "tables")
-        @Where({
-                @Equal(column = "schema", context = "id"),
-        })
+        @Where({ @Equal(column = "schema", context = "id") })
         public final List<Table> tables;
 
         Schema(Long id, List<Table> tables) {
@@ -92,9 +59,7 @@ public class DropSchema implements IAction<DropSchema.Params, DropSchema.Context
         public final Connection dbc;
 
         @From(schema = "model", table = "schemas")
-        @Where({
-                @Equal(column = "name", param = "schema")
-        })
+        @Where({ @Equal(column = "name", param = "schema") })
         public final Schema     schema;
 
         Context(Connection dbc, Schema schema) {
@@ -104,28 +69,24 @@ public class DropSchema implements IAction<DropSchema.Params, DropSchema.Context
     }
 
     @Override
-    public Result apply(Params params, Context ctx) throws Exception {
-        List<Table> tables = ctx.schema.tables;
-        for (Table t : tables) {
-            String ddl = "DROP TABLE " + t.name + " CASCADE";
-            try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
-                ps.execute();
-            }
-        }
+    public Result apply(Params params, Context ctx) {
+        // Schema could contains a lot of tables,
+        // In this case DROP SCHEMA could exceed transaction limit.
+        // So let us drop all tables individually.
+        DropTable   dropTable = new DropTable();
+        List<Patch> patches   = ctx.schema.tables.flatMap(t -> dropTable.apply(
+                new DropTable.Params(params.name, t.name),
+                new DropTable.Context(ctx.dbc,
+                        new DropTable.Schema(ctx.schema.id, t))).patches);
 
-        String ddl = "DROP SCHEMA " + params.name + " CASCADE";
+        String      ddl       = "DROP SCHEMA " + params.name + " CASCADE";
         try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
 
-        List<Index>  indexes = ctx.schema.tables.flatMap(t -> t.indexes);
-        List<Column> columns = ctx.schema.tables.flatMap(t -> t.columns);
-        Long         id      = ctx.schema.id;
-        return Result.ofPatches(
-                indexes.map(i -> new Patch(Operation.DELETE, Row.of("model", "index_columns", new Tuple2<>("id", i)))),
-                indexes.map(i -> new Patch(Operation.DELETE, Row.of("model", "indexes", new Tuple2<>("id", i)))),
-                columns.map(c -> new Patch(Operation.DELETE, Row.of("model", "columns", new Tuple2<>("id", c)))),
-                tables.map(t -> new Patch(Operation.DELETE, Row.of("model", "tables", new Tuple2<>("id", t)))),
-                List.of(new Patch(Operation.DELETE, Row.of("model", "schemas", new Tuple2<>("id", id)))));
+        return Result.ofPatches(patches
+            .append(new Patch(Operation.delete, Row.of("model", "schemas", new Tuple2<>("id", ctx.schema.id)))));
     }
 }
