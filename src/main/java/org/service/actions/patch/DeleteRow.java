@@ -2,6 +2,7 @@ package org.service.actions.patch;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 import org.service.action.Action;
@@ -89,7 +90,7 @@ public class DeleteRow implements IAction<Row, DeleteRow.Context> {
     }
 
     @Override
-    public Result apply(Row params, Context ctx) throws Exception {
+    public Result apply(Row params, Context ctx) {
         List<Column> columns = ctx.schema.table.columns.filter(c -> params.values.containsKey(c.name));
 
         String       dml     = "DELETE FROM " + params.schema + "." + params.table +
@@ -101,6 +102,8 @@ public class DeleteRow implements IAction<Row, DeleteRow.Context> {
                 column.type.set(ps, i++, params, column.name);
             }
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
         return Result.empty;
     }

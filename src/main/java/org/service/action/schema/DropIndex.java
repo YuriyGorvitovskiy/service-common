@@ -2,6 +2,7 @@ package org.service.action.schema;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import org.service.action.Action;
 import org.service.action.Equal;
@@ -93,7 +94,7 @@ public class DropIndex implements IAction<DropIndex.Params, DropIndex.Context> {
     }
 
     @Override
-    public Result apply(Params params, Context ctx) throws Exception {
+    public Result apply(Params params, Context ctx) {
         String ddl = ctx.schema.table.index.primary
                 ? "ALTER TABLE " + params.schema + "." + params.table +
                         " DROP CONSTRAINT " + params.name
@@ -101,9 +102,12 @@ public class DropIndex implements IAction<DropIndex.Params, DropIndex.Context> {
 
         try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
+
         return Result.of(
-                new Patch(Operation.DELETE, Row.of("model", "indexes", new Tuple2<>("id", ctx.schema.table.index.id))),
-                new Patch(Operation.DELETE, Row.of("model", "index_columns", new Tuple2<>("id", ctx.schema.table.index.id))));
+                new Patch(Operation.delete, Row.of("model", "indexes", new Tuple2<>("id", ctx.schema.table.index.id))),
+                new Patch(Operation.delete, Row.of("model", "index_columns", new Tuple2<>("id", ctx.schema.table.index.id))));
     }
 }

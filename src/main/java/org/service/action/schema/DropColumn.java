@@ -2,6 +2,7 @@ package org.service.action.schema;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import org.service.action.Action;
 import org.service.action.Equal;
@@ -45,9 +46,7 @@ public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context
         public final Long        id;
 
         @From(schema = "model", table = "index_columns")
-        @Where({
-                @Equal(column = "column", context = "id"),
-        })
+        @Where({ @Equal(column = "column", context = "id") })
         public final List<Index> indexes;
 
         Column(Long id, List<Index> indexes) {
@@ -95,9 +94,7 @@ public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context
         public final Connection dbc;
 
         @From(schema = "model", table = "schemas")
-        @Where({
-                @Equal(column = "name", param = "schema")
-        })
+        @Where({ @Equal(column = "name", param = "schema") })
         public final Schema     schema;
 
         Context(Connection dbc, Schema schema) {
@@ -107,19 +104,21 @@ public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context
     }
 
     @Override
-    public Result apply(Params params, Context ctx) throws Exception {
+    public Result apply(Params params, Context ctx) {
         String ddl = "ALTER TABLE " + params.schema + "." + params.table +
                 " DROP COLUMN " + params.name + " CASCADE";
 
         try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
 
         List<Index> indexes = ctx.schema.table.column.indexes;
         Long        id      = ctx.schema.table.column.id;
         return Result.ofPatches(
-                indexes.map(i -> new Patch(Operation.DELETE, Row.of("model", "index_columns", new Tuple2<>("id", i)))),
-                indexes.map(i -> new Patch(Operation.DELETE, Row.of("model", "indexes", new Tuple2<>("id", i)))),
-                List.of(new Patch(Operation.DELETE, Row.of("model", "columns", new Tuple2<>("id", id)))));
+                indexes.map(i -> new Patch(Operation.delete, Row.of("model", "index_columns", new Tuple2<>("id", i)))),
+                indexes.map(i -> new Patch(Operation.delete, Row.of("model", "indexes", new Tuple2<>("id", i)))),
+                List.of(new Patch(Operation.delete, Row.of("model", "columns", new Tuple2<>("id", id)))));
     }
 }

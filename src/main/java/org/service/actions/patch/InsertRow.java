@@ -2,6 +2,7 @@ package org.service.actions.patch;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -90,7 +91,7 @@ public class InsertRow implements IAction<Row, InsertRow.Context> {
     }
 
     @Override
-    public Result apply(Row params, Context ctx) throws Exception {
+    public Result apply(Row params, Context ctx) {
         List<Column> columns = ctx.schema.table.columns.filter(c -> params.values.containsKey(c.name));
 
         String       dml     = "INSERT INTO " + params.schema + "." + params.table + "(" +
@@ -102,6 +103,8 @@ public class InsertRow implements IAction<Row, InsertRow.Context> {
                 column.type.set(ps, i++, params, column.name);
             }
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
         return Result.empty;
     }

@@ -2,6 +2,7 @@ package org.service.action.schema;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -54,9 +55,7 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
         public final Long                id;
 
         @From(schema = "model", table = "columns")
-        @Where({
-                @Equal(column = "table", context = "id"),
-        })
+        @Where({ @Equal(column = "table", context = "id") })
         @Key(column = "name")
         public final Map<String, Column> columns;
 
@@ -105,34 +104,43 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
     }
 
     @Override
-    public Result apply(Params params, Context ctx) throws Exception {
+    public Result apply(Params params, Context ctx) {
         String ddl = params.primary
-                ? "ALTER TABLE " + params.schema + "." + params.table +
-                        " ADD CONSTRAINT " + params.name + " PRIMARY KEY (" +
-                        params.columns.collect(Collectors.joining(", ")) + ")"
-                : "CREATE INDEX " + params.name + " ON " + params.schema + "." + params.table +
-                        "(" + params.columns.collect(Collectors.joining(", ")) + ")";
+                ? "ALTER TABLE " + params.schema + "." + params.table + " ADD " + primaryDDL(params)
+                : indexDDL(params);
 
         try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
+
+        return Result.ofPatches(patches(params, ctx));
+    }
+
+    public String primaryDDL(Params params) {
+        return "CONSTRAINT " + params.name + " PRIMARY KEY (" + params.columns.collect(Collectors.joining(", ")) + ")";
+    }
+
+    public String indexDDL(Params params) {
+        return "CREATE INDEX " + params.name + " ON " + params.schema + "." + params.table +
+                "(" + params.columns.collect(Collectors.joining(", ")) + ")";
+    }
+
+    public List<Patch> patches(Params params, Context ctx) {
         Long id = ctx.index_id_counter.get();
-        return Result.ofPatches(
-                List.of(new Patch(Operation.INSERT,
+        return List.of(
+                new Patch(Operation.insert,
                         Row.of("model",
                                 "indexes",
                                 new Tuple2<>("id", id),
                                 new Tuple2<>("table", ctx.schema.table.id),
                                 new Tuple2<>("name", params.name),
-                                new Tuple2<>("primary", params.primary)))),
-                params.columns.map(c -> new Patch(Operation.INSERT,
-                        Row.of("model",
-                                "index_columns",
-                                new Tuple2<>("id", id),
-                                new Tuple2<>("column", ctx.schema.table.columns.get(c).get().id)))));
-    }
-
-    public String primaryDDL(Params params) {
-
+                                new Tuple2<>("primary", params.primary))))
+            .appendAll(params.columns.map(c -> new Patch(Operation.insert,
+                    Row.of("model",
+                            "index_columns",
+                            new Tuple2<>("id", id),
+                            new Tuple2<>("column", ctx.schema.table.columns.get(c).get().id)))));
     }
 }

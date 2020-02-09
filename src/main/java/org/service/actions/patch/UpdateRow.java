@@ -2,6 +2,7 @@ package org.service.actions.patch;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -130,7 +131,7 @@ public class UpdateRow implements IAction<Row, UpdateRow.Context> {
     }
 
     @Override
-    public Result apply(Row params, Context ctx) throws Exception {
+    public Result apply(Row params, Context ctx) {
         List<Column> primary = ctx.schema.table.primary.columns
             .map(c -> c.column)
             .filter(c -> params.values.containsKey(c.name));
@@ -152,6 +153,8 @@ public class UpdateRow implements IAction<Row, UpdateRow.Context> {
                 column.type.set(ps, i++, params, column.name);
             }
             ps.execute();
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
         return Result.empty;
     }
