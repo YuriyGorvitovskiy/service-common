@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.util.function.Supplier;
 
 import org.service.action.Action;
-import org.service.action.Counter;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.Sequence;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
 import org.service.immutable.data.Row;
@@ -20,34 +20,47 @@ import io.vavr.collection.List;
 public class CreateSchema implements IAction<CreateSchema.Params, CreateSchema.Context> {
 
     public static class Params {
-        public final String                   name;
-        public final List<CreateTable.Params> tables;
+        public final String                      name;
+        public final List<CreateTable.Params>    tables;
+        public final List<CreateSequence.Params> sequences;
 
-        Params(String name, List<CreateTable.Params> tables) {
+        Params(String name, List<CreateTable.Params> tables, List<CreateSequence.Params> sequences) {
             this.name = name;
             this.tables = tables;
+            this.sequences = sequences;
         }
     }
 
     public static class Context {
 
-        @Counter("schema_id")
-        public final Supplier<Long> schema_id_counter;
-        public final Supplier<Long> table_id_counter;
-        public final Supplier<Long> column_id_counter;
-        public final Supplier<Long> index_id_counter;
+        @Sequence("schema_id")
+        public final Supplier<Long> seq_schema_id;
+
+        @Sequence("table_id")
+        public final Supplier<Long> seq_table_id;
+
+        @Sequence("column_id")
+        public final Supplier<Long> seq_column_id;
+
+        @Sequence("index_id")
+        public final Supplier<Long> seq_index_id;
+
+        @Sequence("sequence_id")
+        public final Supplier<Long> seq_sequence_id;
 
         public final Connection     dbc;
 
-        Context(Supplier<Long> schema_id_counter,
-                Supplier<Long> table_id_counter,
-                Supplier<Long> column_id_counter,
-                Supplier<Long> index_id_counter,
+        Context(Supplier<Long> seq_schema_id,
+                Supplier<Long> seq_table_id,
+                Supplier<Long> seq_column_id,
+                Supplier<Long> seq_index_id,
+                Supplier<Long> seq_sequence_id,
                 Connection dbc) {
-            this.schema_id_counter = schema_id_counter;
-            this.table_id_counter = table_id_counter;
-            this.column_id_counter = column_id_counter;
-            this.index_id_counter = index_id_counter;
+            this.seq_schema_id = seq_schema_id;
+            this.seq_table_id = seq_table_id;
+            this.seq_column_id = seq_column_id;
+            this.seq_index_id = seq_index_id;
+            this.seq_sequence_id = seq_sequence_id;
             this.dbc = dbc;
         }
     }
@@ -61,7 +74,7 @@ public class CreateSchema implements IAction<CreateSchema.Params, CreateSchema.C
             throw new RuntimeException(ex);
         }
 
-        Long        id          = ctx.schema_id_counter.get();
+        Long        id          = ctx.seq_schema_id.get();
         List<Patch> patches     = List.of(new Patch(Operation.insert,
                 Row.of("model",
                         "schemas",
@@ -72,11 +85,20 @@ public class CreateSchema implements IAction<CreateSchema.Params, CreateSchema.C
         for (CreateTable.Params table : params.tables) {
             patches.appendAll(createTable.apply(table,
                     new CreateTable.Context(
-                            ctx.table_id_counter,
-                            ctx.column_id_counter,
-                            ctx.index_id_counter,
+                            ctx.seq_table_id,
+                            ctx.seq_column_id,
+                            ctx.seq_index_id,
                             ctx.dbc,
                             new CreateTable.Schema(id))).patches);
+        }
+
+        CreateSequence createSequence = new CreateSequence();
+        for (CreateSequence.Params sequence : params.sequences) {
+            patches.appendAll(createSequence.apply(sequence,
+                    new CreateSequence.Context(
+                            ctx.seq_sequence_id,
+                            ctx.dbc,
+                            new CreateSequence.Schema(id))).patches);
         }
 
         return Result.ofPatches(patches);

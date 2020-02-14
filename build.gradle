@@ -6,6 +6,12 @@
  * user guide available at https://docs.gradle.org/4.3/userguide/java_library_plugin.html
  */
 
+ plugins {
+  id 'com.github.jk1.dependency-license-report' version '1.13'
+}
+
+import com.github.jk1.license.render.*
+
 // Apply the java-library plugin to add support for Java Library
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
@@ -67,6 +73,11 @@ task javadocJar(type: Jar) {
 
 test {
     systemProperties System.getProperties()
+}
+
+licenseReport {
+    renderers = [new CsvReportRenderer('third-party-libs.csv')]
+    configurations = ['compile']
 }
 
 publishing {

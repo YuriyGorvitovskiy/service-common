@@ -7,11 +7,11 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.service.action.Action;
-import org.service.action.Counter;
 import org.service.action.Equal;
 import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.Sequence;
 import org.service.action.Where;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
@@ -74,14 +74,14 @@ public class CreateTable implements IAction<CreateTable.Params, CreateTable.Cont
 
     public static class Context {
 
-        @Counter("table_id")
-        public final Supplier<Long> table_id_counter;
+        @Sequence("table_id")
+        public final Supplier<Long> seq_table_id;
 
-        @Counter("column_id")
-        public final Supplier<Long> column_id_counter;
+        @Sequence("column_id")
+        public final Supplier<Long> seq_column_id;
 
-        @Counter("index_id")
-        public final Supplier<Long> index_id_counter;
+        @Sequence("index_id")
+        public final Supplier<Long> seq_index_id;
 
         public final Connection     dbc;
 
@@ -89,14 +89,14 @@ public class CreateTable implements IAction<CreateTable.Params, CreateTable.Cont
         @Where({ @Equal(column = "name", param = "schema") })
         public final Schema         schema;
 
-        Context(Supplier<Long> table_id_counter,
-                Supplier<Long> column_id_counter,
-                Supplier<Long> index_id_counter,
+        Context(Supplier<Long> seq_table_id,
+                Supplier<Long> seq_column_id,
+                Supplier<Long> seq_index_id,
                 Connection dbc,
                 Schema schema) {
-            this.table_id_counter = table_id_counter;
-            this.column_id_counter = column_id_counter;
-            this.index_id_counter = index_id_counter;
+            this.seq_table_id = seq_table_id;
+            this.seq_column_id = seq_column_id;
+            this.seq_index_id = seq_index_id;
             this.dbc = dbc;
             this.schema = schema;
         }
@@ -135,11 +135,11 @@ public class CreateTable implements IAction<CreateTable.Params, CreateTable.Cont
             }
         }
 
-        Long                            table_id      = ctx.table_id_counter.get();
+        Long                            table_id      = ctx.seq_table_id.get();
 
         List<Patch>                     columnPatches = params.columns.map(c -> createColumn.patch(
                 new CreateColumn.Params(params.schema, params.name, c.name, c.type),
-                new CreateColumn.Context(ctx.column_id_counter,
+                new CreateColumn.Context(ctx.seq_column_id,
                         ctx.dbc,
                         new CreateColumn.Schema(ctx.schema.id,
                                 new CreateColumn.Table(table_id)))));
@@ -157,7 +157,7 @@ public class CreateTable implements IAction<CreateTable.Params, CreateTable.Cont
                                 new Tuple2<>("name", params.name)))),
                 params.columns.map(c -> createColumn.patch(
                         new CreateColumn.Params(params.schema, params.name, c.name, c.type),
-                        new CreateColumn.Context(ctx.column_id_counter,
+                        new CreateColumn.Context(ctx.seq_column_id,
                                 ctx.dbc,
                                 new CreateColumn.Schema(ctx.schema.id,
                                         new CreateColumn.Table(table_id))))),
@@ -169,12 +169,12 @@ public class CreateTable implements IAction<CreateTable.Params, CreateTable.Cont
                                         params.primary.name,
                                         true,
                                         params.primary.columns),
-                                new CreateIndex.Context(ctx.index_id_counter,
+                                new CreateIndex.Context(ctx.seq_index_id,
                                         ctx.dbc,
                                         new CreateIndex.Schema(ctx.schema.id, new CreateIndex.Table(table_id, columnIds)))),
                 params.indexes.flatMap(i -> createIndex.patches(
                         new CreateIndex.Params(params.schema, params.name, i.name, false, i.columns),
-                        new CreateIndex.Context(ctx.index_id_counter,
+                        new CreateIndex.Context(ctx.seq_index_id,
                                 ctx.dbc,
                                 new CreateIndex.Schema(ctx.schema.id, new CreateIndex.Table(table_id, columnIds))))));
     }

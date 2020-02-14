@@ -1,5 +1,5 @@
 package org.service.action;
 
-public @interface Counter {
+public @interface Sequence {
     String value();
 }

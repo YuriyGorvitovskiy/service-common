@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import java.util.function.Supplier;
 
 import org.service.action.Action;
-import org.service.action.Counter;
 import org.service.action.Equal;
 import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.Sequence;
 import org.service.action.Where;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
@@ -64,8 +64,8 @@ public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.C
 
     public static class Context {
 
-        @Counter("column_id")
-        public final Supplier<Long> column_id_counter;
+        @Sequence("column_id")
+        public final Supplier<Long> seq_column_id;
 
         public final Connection     dbc;
 
@@ -73,8 +73,8 @@ public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.C
         @Where({ @Equal(column = "name", param = "schema") })
         public final Schema         schema;
 
-        Context(Supplier<Long> column_id_counter, Connection dbc, Schema schema) {
-            this.column_id_counter = column_id_counter;
+        Context(Supplier<Long> seq_column_id, Connection dbc, Schema schema) {
+            this.seq_column_id = seq_column_id;
             this.dbc = dbc;
             this.schema = schema;
         }
@@ -83,7 +83,7 @@ public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.C
 
     @Override
     public Result apply(Params params, Context ctx) {
-        String ddl = "ALTER TABLE " + params.schema + "." + params.table + "ADD COLUMN " + columnDDL(params);
+        String ddl = "ALTER TABLE " + params.schema + "." + params.table + " ADD COLUMN " + columnDDL(params);
         try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
             ps.execute();
         } catch (SQLException ex) {
@@ -102,7 +102,7 @@ public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.C
         return new Patch(Operation.insert,
                 Row.of("model",
                         "columns",
-                        new Tuple2<>("id", ctx.column_id_counter.get()),
+                        new Tuple2<>("id", ctx.seq_column_id.get()),
                         new Tuple2<>("table", ctx.schema.table.id),
                         new Tuple2<>("name", params.name),
                         new Tuple2<>("type", params.type.name())));

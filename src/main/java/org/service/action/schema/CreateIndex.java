@@ -7,12 +7,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.service.action.Action;
-import org.service.action.Counter;
 import org.service.action.Equal;
 import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Key;
 import org.service.action.Result;
+import org.service.action.Sequence;
 import org.service.action.Where;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
@@ -84,8 +84,8 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
 
     public static class Context {
 
-        @Counter("index_id")
-        public final Supplier<Long> index_id_counter;
+        @Sequence("index_id")
+        public final Supplier<Long> seq_index_id;
 
         public final Connection     dbc;
 
@@ -95,8 +95,8 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
         })
         public final Schema         schema;
 
-        Context(Supplier<Long> index_id_counter, Connection dbc, Schema schema) {
-            this.index_id_counter = index_id_counter;
+        Context(Supplier<Long> seq_index_id, Connection dbc, Schema schema) {
+            this.seq_index_id = seq_index_id;
             this.dbc = dbc;
             this.schema = schema;
         }
@@ -128,7 +128,7 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
     }
 
     public List<Patch> patches(Params params, Context ctx) {
-        Long id = ctx.index_id_counter.get();
+        Long id = ctx.seq_index_id.get();
         return List.of(
                 new Patch(Operation.insert,
                         Row.of("model",
