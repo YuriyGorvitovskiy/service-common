@@ -1,4 +1,4 @@
-package org.service.action.schema;
+package org.service.action.schema.combine;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +10,6 @@ import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Result;
 import org.service.action.Where;
-import org.service.action.schema.DropTable.Column;
-import org.service.action.schema.DropTable.Index;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
 import org.service.immutable.data.Row;
@@ -34,7 +32,7 @@ public class DropSchema implements IAction<DropSchema.Params, DropSchema.Context
 
         public final String name;
 
-        Table(Long id, String name, List<Column> columns, List<Index> indexes) {
+        Table(Long id, String name, List<DropTable.Column> columns, List<DropTable.Index> indexes) {
             super(id, columns, indexes);
             this.name = name;
         }

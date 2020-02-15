@@ -1,4 +1,4 @@
-package org.service.action.schema;
+package org.service.action.schema.combine;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
