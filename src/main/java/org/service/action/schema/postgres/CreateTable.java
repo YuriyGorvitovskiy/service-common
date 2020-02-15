@@ -1,7 +1,5 @@
 package org.service.action.schema.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 import org.service.action.Action;
@@ -35,8 +33,8 @@ public class CreateTable implements IAction<CreateTable.Params, Context> {
     }
 
     public static class Params {
-        public final String       schema;
-        public final String       name;
+        public final String schema;
+        public final String name;
 
         public final List<Column> columns;
         public final Index        primary;
@@ -73,11 +71,7 @@ public class CreateTable implements IAction<CreateTable.Params, Context> {
                                 .map(p -> createIndex
                                     .primaryDDL(new CreateIndex.Params(params.schema, params.name, p.name, true, p.columns))))
                     .collect(Collectors.joining(", "));
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
-            ps.execute();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        ctx.dbc.execute(ddl);
 
         for (Index index : params.indexes) {
             CreateIndex.Params indexParams = new CreateIndex.Params(
@@ -86,11 +80,7 @@ public class CreateTable implements IAction<CreateTable.Params, Context> {
                     index.name,
                     false,
                     index.columns);
-            try (PreparedStatement ps = ctx.dbc.prepareStatement(createIndex.indexDDL(indexParams))) {
-                ps.execute();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            ctx.dbc.execute(createIndex.indexDDL(indexParams));
         }
 
         return Result.empty;

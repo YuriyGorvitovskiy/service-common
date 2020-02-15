@@ -1,12 +1,12 @@
 package org.service.action.schema.postgres;
 
-import java.sql.Connection;
+import org.service.dbc.DBConnection;
 
 public class Context {
 
-    public final Connection dbc;
+    public final DBConnection dbc;
 
-    public Context(Connection dbc) {
+    public Context(DBConnection dbc) {
         this.dbc = dbc;
     }
 

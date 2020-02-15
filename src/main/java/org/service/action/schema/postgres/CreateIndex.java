@@ -1,7 +1,5 @@
 package org.service.action.schema.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 import org.service.action.Action;
@@ -35,11 +33,7 @@ public class CreateIndex implements IAction<CreateIndex.Params, Context> {
                 ? "ALTER TABLE " + params.schema + "." + params.table + " ADD " + primaryDDL(params)
                 : indexDDL(params);
 
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
-            ps.execute();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        ctx.dbc.execute(ddl);
 
         return Result.empty;
     }

@@ -1,8 +1,5 @@
 package org.service.action.schema.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
@@ -26,12 +23,7 @@ public class DropColumn implements IAction<DropColumn.Params, Context> {
     public Result apply(Params params, Context ctx) {
         String ddl = "ALTER TABLE " + params.schema + "." + params.table +
                 " DROP COLUMN " + params.name + " CASCADE";
-
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
-            ps.execute();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        ctx.dbc.execute(ddl);
 
         return Result.empty;
     }

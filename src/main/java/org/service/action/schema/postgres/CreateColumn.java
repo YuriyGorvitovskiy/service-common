@@ -1,8 +1,5 @@
 package org.service.action.schema.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
@@ -27,15 +24,10 @@ public class CreateColumn implements IAction<CreateColumn.Params, Context> {
 
     @Override
     public Result apply(Params params, Context ctx) {
-        String ddl = "ALTER TABLE " + params.schema + "." + params.table + " ADD COLUMN " + columnDDL(params);
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
-            ps.execute();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-
+        String ddl = "ALTER TABLE " + params.schema + "." + params.table +
+                " ADD COLUMN " + columnDDL(params);
+        ctx.dbc.execute(ddl);
         return Result.empty;
-
     }
 
     public String columnDDL(Params params) {

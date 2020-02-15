@@ -1,9 +1,5 @@
 package org.service.action.schema.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
@@ -34,11 +30,7 @@ public class DropSchema implements IAction<DropSchema.Params, Context> {
         }
 
         String ddl = "DROP SCHEMA " + params.name + " CASCADE";
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
-            ps.execute();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        ctx.dbc.execute(ddl);
 
         return Result.empty;
     }
@@ -47,16 +39,13 @@ public class DropSchema implements IAction<DropSchema.Params, Context> {
         String sql = "SELECT table_name "
                 + "FROM information_schema.tables "
                 + "WHERE table_schema = ?";
-        List<String> tables = List.empty();
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(sql)) {
-            ps.setString(1, params.name);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                tables = tables.append(rs.getString(1));
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+
+        List<String> tables = ctx.dbc.executeQuery(
+                sql,
+                ps -> {
+                    ps.setString(1, params.name);
+                },
+                rs -> rs.getString(1));
         return tables;
     }
 }

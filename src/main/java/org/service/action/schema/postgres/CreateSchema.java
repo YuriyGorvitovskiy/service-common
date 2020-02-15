@@ -1,8 +1,5 @@
 package org.service.action.schema.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
@@ -27,11 +24,7 @@ public class CreateSchema implements IAction<CreateSchema.Params, Context> {
     @Override
     public Result apply(Params params, Context ctx) {
         String ddl = "CREATE SCHEMA " + params.name;
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(ddl)) {
-            ps.execute();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        ctx.dbc.execute(ddl);
 
         CreateTable createTable = new CreateTable();
         for (CreateTable.Params table : params.tables) {
