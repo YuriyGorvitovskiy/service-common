@@ -3,6 +3,9 @@ package org.service.action.schema.postgres;
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.immutable.schema.DataType;
+import org.service.sql.simple.Equal;
+import org.service.sql.simple.Select;
 
 import io.vavr.collection.List;
 
@@ -36,16 +39,13 @@ public class DropSchema implements IAction<DropSchema.Params, Context> {
     }
 
     public List<String> getTables(Params params, Context ctx) {
-        String sql = "SELECT table_name "
-                + "FROM information_schema.tables "
-                + "WHERE table_schema = ?";
+        Select select = new Select("table_name")
+            .from("information_schema", "tables")
+            .where(Equal.of("table_schema", DataType.LABEL, params.name));
 
-        List<String> tables = ctx.dbc.executeQuery(
-                sql,
-                ps -> {
-                    ps.setString(1, params.name);
-                },
+        return ctx.dbc.executeQuery(
+                select.sql(),
+                select.bind(),
                 rs -> rs.getString(1));
-        return tables;
     }
 }
