@@ -3,8 +3,9 @@ package org.service.action.schema.postgres;
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.schema.Service;
 
-@Action(service = "postgres", name = "create_column")
+@Action(service = Service.POSTGRES, name = Service.Create.SEQUENCE)
 public class CreateSequence implements IAction<CreateSequence.Params, Context> {
 
     public static class Params {
@@ -12,7 +13,7 @@ public class CreateSequence implements IAction<CreateSequence.Params, Context> {
         public final String name;
         public final Long   start;
 
-        Params(String schema, String name, Long start) {
+        public Params(String schema, String name, Long start) {
             this.schema = schema;
             this.name = name;
             this.start = start;

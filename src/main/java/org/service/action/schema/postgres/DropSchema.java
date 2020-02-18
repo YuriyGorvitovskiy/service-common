@@ -3,13 +3,14 @@ package org.service.action.schema.postgres;
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.schema.Service;
 import org.service.immutable.schema.DataType;
 import org.service.sql.simple.Equal;
 import org.service.sql.simple.Select;
 
 import io.vavr.collection.List;
 
-@Action(service = "postgres", name = "drop_schema")
+@Action(service = Service.POSTGRES, name = Service.Drop.SCHEMA)
 public class DropSchema implements IAction<DropSchema.Params, Context> {
 
     public static class Params {

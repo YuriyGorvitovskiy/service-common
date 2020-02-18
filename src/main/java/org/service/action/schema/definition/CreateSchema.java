@@ -6,6 +6,10 @@ import org.service.action.IAction;
 import org.service.action.Key;
 import org.service.action.Result;
 import org.service.action.Sequence;
+import org.service.action.schema.Schema;
+import org.service.action.schema.Schema.Schemas;
+import org.service.action.schema.Schema.Table;
+import org.service.action.schema.Service;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
 import org.service.immutable.data.Row;
@@ -14,7 +18,7 @@ import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 
-@Action(service = "schema_manager", name = "create_schema")
+@Action(service = Service.DEFINITION, name = Service.Create.SCHEMA)
 public class CreateSchema implements IAction<CreateSchema.Params, CreateSchema.Context> {
 
     public static class Params {
@@ -31,7 +35,7 @@ public class CreateSchema implements IAction<CreateSchema.Params, CreateSchema.C
 
     public static class Context {
 
-        @Sequence("schema_id")
+        @Sequence(Schema.Sequence.SCHEMA_ID)
         public final Long new_schema_id;
 
         @ForEach(param = "tables")
@@ -54,10 +58,10 @@ public class CreateSchema implements IAction<CreateSchema.Params, CreateSchema.C
     @Override
     public Result apply(Params params, Context ctx) {
         List<Patch> schemaPatches = List.of(new Patch(Operation.insert,
-                Row.of("model",
-                        "schemas",
-                        new Tuple2<>("id", ctx.new_schema_id),
-                        new Tuple2<>("name", params.name))));
+                Row.of(Schema.NAME,
+                        Table.SCHEMAS,
+                        new Tuple2<>(Schemas.ID, ctx.new_schema_id),
+                        new Tuple2<>(Schemas.NAME, params.name))));
 
         final CreateTable createTable  = new CreateTable();
         List<Patch>       tablePatches = params.tables

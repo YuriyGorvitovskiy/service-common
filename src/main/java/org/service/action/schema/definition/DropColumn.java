@@ -6,6 +6,11 @@ import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Result;
 import org.service.action.Where;
+import org.service.action.schema.Schema;
+import org.service.action.schema.Schema.Columns;
+import org.service.action.schema.Schema.IndexColumns;
+import org.service.action.schema.Schema.Table;
+import org.service.action.schema.Service;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
 import org.service.immutable.data.Row;
@@ -13,7 +18,7 @@ import org.service.immutable.data.Row;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 
-@Action(service = "schema_manager", name = "drop_column")
+@Action(service = Service.DEFINITION, name = Service.Drop.COLUMN)
 public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context> {
 
     public static class Params {
@@ -26,8 +31,8 @@ public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context
 
     public static class Context {
 
-        @From(schema = "model", table = "index_columns")
-        @Where({ @Equal(column = "column", param = "id") })
+        @From(schema = Schema.NAME, table = Table.INDEX_COLUMNS)
+        @Where({ @Equal(column = IndexColumns.COLUMN, param = "id") })
         public final List<DropIndex.Params> indexes;
 
         Context(List<DropIndex.Params> indexes) {
@@ -47,7 +52,10 @@ public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context
     }
 
     List<Patch> columnPatches(Params params) {
-        return List.of(new Patch(Operation.delete, Row.of("model", "columns", new Tuple2<>("id", params.id))));
+        return List.of(new Patch(Operation.delete,
+                Row.of(Schema.NAME,
+                        Table.COLUMNS,
+                        new Tuple2<>(Columns.ID, params.id))));
     }
 
 }

@@ -8,5 +8,5 @@ public @interface Equal {
 
     String context() default "";
 
-    String value() default "";
+    String[] value() default {};
 }

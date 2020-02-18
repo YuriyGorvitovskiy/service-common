@@ -3,10 +3,11 @@ package org.service.action.schema.postgres;
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.schema.Service;
 
 import io.vavr.collection.List;
 
-@Action(service = "postgres", name = "create_schema")
+@Action(service = Service.POSTGRES, name = Service.Create.SCHEMA)
 public class CreateSchema implements IAction<CreateSchema.Params, Context> {
 
     public static class Params {
@@ -14,7 +15,7 @@ public class CreateSchema implements IAction<CreateSchema.Params, Context> {
         public final List<CreateTable.Params>    tables;
         public final List<CreateSequence.Params> sequences;
 
-        Params(String name, List<CreateTable.Params> tables, List<CreateSequence.Params> sequences) {
+        public Params(String name, List<CreateTable.Params> tables, List<CreateSequence.Params> sequences) {
             this.name = name;
             this.tables = tables;
             this.sequences = sequences;

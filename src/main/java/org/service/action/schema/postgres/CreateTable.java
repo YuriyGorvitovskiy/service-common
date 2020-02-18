@@ -5,32 +5,13 @@ import java.util.stream.Collectors;
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.schema.Service;
 import org.service.immutable.schema.DataType;
 
 import io.vavr.collection.List;
 
-@Action(service = "postgres", name = "create_table")
+@Action(service = Service.POSTGRES, name = Service.Create.TABLE)
 public class CreateTable implements IAction<CreateTable.Params, Context> {
-
-    public static class Column {
-        public final String   name;
-        public final DataType type;
-
-        Column(String name, DataType type) {
-            this.name = name;
-            this.type = type;
-        }
-    }
-
-    public static class Index {
-        public final String       name;
-        public final List<String> columns;
-
-        Index(String name, List<String> columns) {
-            this.name = name;
-            this.columns = columns;
-        }
-    }
 
     public static class Params {
         public final String schema;
@@ -40,7 +21,7 @@ public class CreateTable implements IAction<CreateTable.Params, Context> {
         public final Index        primary;
         public final List<Index>  indexes;
 
-        Params(String schema, String name, List<Column> columns, Index primary, List<Index> indexes) {
+        public Params(String schema, String name, List<Column> columns, Index primary, List<Index> indexes) {
             this.schema = schema;
             this.name = name;
             this.columns = columns;
@@ -49,12 +30,23 @@ public class CreateTable implements IAction<CreateTable.Params, Context> {
         }
     }
 
-    public static class Schema {
+    public static class Column {
+        public final String   name;
+        public final DataType type;
 
-        public final Long id;
+        public Column(String name, DataType type) {
+            this.name = name;
+            this.type = type;
+        }
+    }
 
-        Schema(Long id) {
-            this.id = id;
+    public static class Index {
+        public final String       name;
+        public final List<String> columns;
+
+        public Index(String name, List<String> columns) {
+            this.name = name;
+            this.columns = columns;
         }
     }
 

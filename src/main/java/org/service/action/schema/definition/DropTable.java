@@ -6,6 +6,11 @@ import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Result;
 import org.service.action.Where;
+import org.service.action.schema.Schema;
+import org.service.action.schema.Schema.Columns;
+import org.service.action.schema.Schema.Table;
+import org.service.action.schema.Schema.Tables;
+import org.service.action.schema.Service;
 import org.service.immutable.data.Patch;
 import org.service.immutable.data.Patch.Operation;
 import org.service.immutable.data.Row;
@@ -13,7 +18,7 @@ import org.service.immutable.data.Row;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 
-@Action(service = "schema_manager", name = "drop_table")
+@Action(service = Service.DEFINITION, name = Service.Drop.TABLE)
 public class DropTable implements IAction<DropTable.Params, DropTable.Context> {
 
     public static class Params {
@@ -26,12 +31,12 @@ public class DropTable implements IAction<DropTable.Params, DropTable.Context> {
 
     public static class Context {
 
-        @From(schema = "model", table = "columns")
-        @Where({ @Equal(column = "table_id", param = "id") })
+        @From(schema = Schema.NAME, table = Table.COLUMNS)
+        @Where({ @Equal(column = Columns.TABLE, param = "id") })
         public final List<DropColumn.Params> columns;
 
-        @From(schema = "model", table = "indexes")
-        @Where({ @Equal(column = "table_id", param = "id") })
+        @From(schema = Schema.NAME, table = Table.INDEXES)
+        @Where({ @Equal(column = Columns.TABLE, param = "id") })
         public final List<DropIndex.Params> indexes;
 
         Context(List<DropIndex.Params> indexes, List<DropColumn.Params> columns) {
@@ -43,9 +48,9 @@ public class DropTable implements IAction<DropTable.Params, DropTable.Context> {
     @Override
     public Result apply(Params params, Context ctx) {
         List<Patch> tablePatches = List.of(new Patch(Operation.delete,
-                Row.of("model",
-                        "tables",
-                        new Tuple2<>("id", params.id))));
+                Row.of(Schema.NAME,
+                        Table.TABLES,
+                        new Tuple2<>(Tables.ID, params.id))));
 
         DropColumn  dropColumn    = new DropColumn();
         List<Patch> columnPatches = ctx.columns.flatMap(p -> dropColumn.columnPatches(p));

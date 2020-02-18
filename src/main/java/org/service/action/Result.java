@@ -5,11 +5,11 @@ import org.service.immutable.data.Patch;
 import io.vavr.collection.List;
 
 public class Result {
-    public static final Result empty = Result.of(null, null);
-    public final List<Patch>   patches;
-    public final List<Event>   events;
+    public static final Result  empty = Result.of(null, null);
+    public final List<Patch>    patches;
+    public final List<Event<?>> events;
 
-    Result(List<Patch> patches, List<Event> events) {
+    Result(List<Patch> patches, List<Event<?>> events) {
         this.patches = patches;
         this.events = events;
     }
@@ -22,15 +22,15 @@ public class Result {
         return new Result(List.of(patches), List.empty());
     }
 
-    public static Result of(Event event) {
+    public static Result of(Event<?> event) {
         return new Result(List.empty(), List.of(event));
     }
 
-    public static Result of(Event... events) {
+    public static Result of(Event<?>... events) {
         return new Result(List.empty(), List.of(events));
     }
 
-    public static Result of(List<Patch> patches, List<Event> events) {
+    public static Result of(List<Patch> patches, List<Event<?>> events) {
         return new Result(
                 null == patches ? List.empty() : patches,
                 null == events ? List.empty() : events);
@@ -42,7 +42,7 @@ public class Result {
     }
 
     @SafeVarargs
-    public static Result ofEvents(List<Event>... events) {
+    public static Result ofEvents(List<Event<?>>... events) {
         return new Result(List.empty(), List.of(events).flatMap(e -> e));
     }
 

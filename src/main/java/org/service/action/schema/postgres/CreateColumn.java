@@ -3,9 +3,10 @@ package org.service.action.schema.postgres;
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.schema.Service;
 import org.service.immutable.schema.DataType;
 
-@Action(service = "postgres", name = "create_column")
+@Action(service = Service.POSTGRES, name = Service.Create.COLUMN)
 public class CreateColumn implements IAction<CreateColumn.Params, Context> {
 
     public static class Params {

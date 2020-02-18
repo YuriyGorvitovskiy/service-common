@@ -5,10 +5,11 @@ import java.util.stream.Collectors;
 import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
+import org.service.action.schema.Service;
 
 import io.vavr.collection.List;
 
-@Action(service = "postgres", name = "create_index")
+@Action(service = Service.POSTGRES, name = Service.Create.INDEX)
 public class CreateIndex implements IAction<CreateIndex.Params, Context> {
 
     public static class Params {
@@ -18,7 +19,7 @@ public class CreateIndex implements IAction<CreateIndex.Params, Context> {
         public final Boolean      primary;
         public final List<String> columns;
 
-        Params(String schema, String table, String name, Boolean primary, List<String> columns) {
+        public Params(String schema, String table, String name, Boolean primary, List<String> columns) {
             this.schema = schema;
             this.table = table;
             this.name = name;
