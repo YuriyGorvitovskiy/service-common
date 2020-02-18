@@ -4,7 +4,7 @@ import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
 
-@Action(service = "schema_manager", name = "drop_index")
+@Action(service = "postgres", name = "drop_index")
 public class DropIndex implements IAction<DropIndex.Params, Context> {
 
     public static class Params {

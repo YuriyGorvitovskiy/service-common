@@ -5,7 +5,7 @@ import org.service.action.IAction;
 import org.service.action.Result;
 import org.service.immutable.schema.DataType;
 
-@Action(service = "schema_manager", name = "create_column")
+@Action(service = "postgres", name = "create_column")
 public class CreateColumn implements IAction<CreateColumn.Params, Context> {
 
     public static class Params {

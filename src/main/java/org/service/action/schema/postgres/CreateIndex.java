@@ -8,7 +8,7 @@ import org.service.action.Result;
 
 import io.vavr.collection.List;
 
-@Action(service = "schema_manager", name = "create_index")
+@Action(service = "postgres", name = "create_index")
 public class CreateIndex implements IAction<CreateIndex.Params, Context> {
 
     public static class Params {

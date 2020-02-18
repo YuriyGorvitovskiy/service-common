@@ -4,7 +4,7 @@ import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
 
-@Action(service = "schema_manager", name = "drop_column")
+@Action(service = "postgres", name = "drop_column")
 public class DropColumn implements IAction<DropColumn.Params, Context> {
 
     public static class Params {

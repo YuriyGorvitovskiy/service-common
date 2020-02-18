@@ -9,7 +9,7 @@ import org.service.immutable.schema.DataType;
 
 import io.vavr.collection.List;
 
-@Action(service = "schema_manager", name = "create_table")
+@Action(service = "postgres", name = "create_table")
 public class CreateTable implements IAction<CreateTable.Params, Context> {
 
     public static class Column {

@@ -52,11 +52,11 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
 
     public static class Table {
 
-        public final Long                id;
+        public final Long id;
 
         @From(schema = "model", table = "columns")
         @Where({ @Equal(column = "table", context = "id") })
-        @Key(column = "name")
+        @Key("name")
         public final Map<String, Column> columns;
 
         Table(Long id, Map<String, Column> columns) {
@@ -67,7 +67,7 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
 
     public static class Schema {
 
-        public final Long  id;
+        public final Long id;
 
         @From(schema = "model", table = "tables")
         @Where({
@@ -87,13 +87,13 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
         @Sequence("index_id")
         public final Supplier<Long> seq_index_id;
 
-        public final Connection     dbc;
+        public final Connection dbc;
 
         @From(schema = "model", table = "schemas")
         @Where({
                 @Equal(column = "name", param = "schema")
         })
-        public final Schema         schema;
+        public final Schema schema;
 
         Context(Supplier<Long> seq_index_id, Connection dbc, Schema schema) {
             this.seq_index_id = seq_index_id;

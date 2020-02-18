@@ -4,7 +4,7 @@ import org.service.action.Action;
 import org.service.action.IAction;
 import org.service.action.Result;
 
-@Action(service = "schema_manager", name = "drop_table")
+@Action(service = "postgres", name = "drop_table")
 public class DropSequence implements IAction<DropSequence.Params, Context> {
 
     public static class Params {

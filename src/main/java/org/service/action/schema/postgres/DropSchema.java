@@ -9,7 +9,7 @@ import org.service.sql.simple.Select;
 
 import io.vavr.collection.List;
 
-@Action(service = "schema_manager", name = "drop_schema")
+@Action(service = "postgres", name = "drop_schema")
 public class DropSchema implements IAction<DropSchema.Params, Context> {
 
     public static class Params {

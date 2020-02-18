@@ -6,7 +6,7 @@ import org.service.action.Result;
 
 import io.vavr.collection.List;
 
-@Action(service = "schema_manager", name = "create_schema")
+@Action(service = "postgres", name = "create_schema")
 public class CreateSchema implements IAction<CreateSchema.Params, Context> {
 
     public static class Params {
