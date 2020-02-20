@@ -6,4 +6,8 @@ public @interface From {
 
     String table();
 
+    String alias() default "";
+
+    Equal[] on() default {};
+
 }

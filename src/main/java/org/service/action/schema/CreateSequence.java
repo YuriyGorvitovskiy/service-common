@@ -5,6 +5,7 @@ import org.service.action.Equal;
 import org.service.action.Event;
 import org.service.action.From;
 import org.service.action.IAction;
+import org.service.action.Operand;
 import org.service.action.Result;
 import org.service.action.Select;
 import org.service.action.Where;
@@ -39,7 +40,7 @@ public class CreateSequence implements IAction<CreateSequence.Params, CreateSequ
     public static class Context {
         @Select(Schemas.ID)
         @From(schema = Schema.NAME, table = Table.SCHEMAS)
-        @Where({ @Equal(column = Schemas.NAME, param = "schema") })
+        @Where({ @Equal(left = @Operand(column = Schemas.NAME), right = @Operand(param = "schema")) })
         public final Long schema_id;
 
         public Context(Long schema_id) {

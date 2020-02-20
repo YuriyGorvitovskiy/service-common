@@ -2,11 +2,8 @@ package org.service.action;
 
 public @interface Equal {
 
-    String column();
+    Operand left();
 
-    String param() default "";
+    Operand right();
 
-    String context() default "";
-
-    String[] value() default {};
 }

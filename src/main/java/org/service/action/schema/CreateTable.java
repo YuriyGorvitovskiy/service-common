@@ -4,6 +4,7 @@ import org.service.action.Action;
 import org.service.action.Equal;
 import org.service.action.Event;
 import org.service.action.From;
+import org.service.action.Operand;
 import org.service.action.Result;
 import org.service.action.Select;
 import org.service.action.Where;
@@ -49,12 +50,13 @@ public class CreateTable {
     public static class Context {
         @Select(Schemas.ID)
         @From(schema = Schema.NAME, table = Schema.Table.SCHEMAS)
-        @Where({ @Equal(column = Schemas.NAME, param = "schema") })
+        @Where({ @Equal(left = @Operand(column = Schemas.NAME), right = @Operand(param = "schema")) })
         public final Long schema_id;
 
         public Context(Long schema_id) {
             this.schema_id = schema_id;
         }
+
     }
 
     public Result apply(Params params, Context ctx) {

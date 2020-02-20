@@ -19,7 +19,7 @@ public class DropSequence implements IAction<DropSequence.Params, DropSequence.C
     public static class Params {
         public final Long id;
 
-        Params(Long id) {
+        public Params(Long id) {
             this.id = id;
         }
     }

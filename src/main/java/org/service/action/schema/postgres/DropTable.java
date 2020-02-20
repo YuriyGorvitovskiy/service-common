@@ -12,7 +12,7 @@ public class DropTable implements IAction<DropTable.Params, Context> {
         public final String schema;
         public final String name;
 
-        Params(String schema, String name) {
+        public Params(String schema, String name) {
             this.schema = schema;
             this.name = name;
         }

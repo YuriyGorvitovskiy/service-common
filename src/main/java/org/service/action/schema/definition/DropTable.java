@@ -4,10 +4,12 @@ import org.service.action.Action;
 import org.service.action.Equal;
 import org.service.action.From;
 import org.service.action.IAction;
+import org.service.action.Operand;
 import org.service.action.Result;
 import org.service.action.Where;
 import org.service.action.schema.Schema;
 import org.service.action.schema.Schema.Columns;
+import org.service.action.schema.Schema.Indexes;
 import org.service.action.schema.Schema.Table;
 import org.service.action.schema.Schema.Tables;
 import org.service.action.schema.Service;
@@ -32,11 +34,11 @@ public class DropTable implements IAction<DropTable.Params, DropTable.Context> {
     public static class Context {
 
         @From(schema = Schema.NAME, table = Table.COLUMNS)
-        @Where({ @Equal(column = Columns.TABLE, param = "id") })
+        @Where({ @Equal(left = @Operand(column = Columns.TABLE), right = @Operand(param = "id")) })
         public final List<DropColumn.Params> columns;
 
         @From(schema = Schema.NAME, table = Table.INDEXES)
-        @Where({ @Equal(column = Columns.TABLE, param = "id") })
+        @Where({ @Equal(left = @Operand(column = Indexes.TABLE), right = @Operand(param = "id")) })
         public final List<DropIndex.Params> indexes;
 
         Context(List<DropIndex.Params> indexes, List<DropColumn.Params> columns) {

@@ -16,7 +16,7 @@ public class DropSchema implements IAction<DropSchema.Params, Context> {
     public static class Params {
         public final String name;
 
-        Params(String name) {
+        public Params(String name) {
             this.name = name;
         }
     }

@@ -10,53 +10,45 @@ import org.service.action.Operand;
 import org.service.action.Result;
 import org.service.action.Select;
 import org.service.action.Where;
+import org.service.action.schema.Schema.Columns;
 import org.service.action.schema.Schema.Indexes;
 import org.service.action.schema.Schema.Schemas;
 import org.service.action.schema.Schema.Table;
 import org.service.action.schema.Schema.Tables;
-import org.service.immutable.schema.DataType;
 
 @Action(service = Service.SCHEMA, name = Service.Create.COLUMN)
-public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.Context> {
+public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context> {
 
-    public static class Params extends Column {
+    public static class Params {
         public final String schema;
         public final String table;
+        public final String column;
 
         public Params(String schema,
                       String table,
-                      String name,
-                      DataType type) {
-            super(name, type);
+                      String column) {
             this.schema = schema;
             this.table = table;
-        }
-    }
-
-    public static class Column {
-        public final String   name;
-        public final DataType type;
-
-        public Column(String name, DataType type) {
-            this.name = name;
-            this.type = type;
+            this.column = column;
         }
     }
 
     public static class Context {
         @Select(alias = "c", value = "id")
         @Join({
-                @From(schema = Schema.NAME, table = Table.TABLES, alias = "t"),
+                @From(schema = Schema.NAME, table = Table.COLUMNS, alias = "c"),
+                @From(schema = Schema.NAME, table = Table.TABLES, alias = "t", on = @Equal(left = @Operand(alias = "t", column = Tables.ID), right = @Operand(alias = "c", column = Indexes.TABLE))),
                 @From(schema = Schema.NAME, table = Table.SCHEMAS, alias = "s", on = @Equal(left = @Operand(alias = "s", column = Schemas.ID), right = @Operand(alias = "t", column = Tables.SCHEMA)))
         })
         @Where({
-                @Equal(left = @Operand(alias = "t", column = Indexes.NAME), right = @Operand(param = "table")),
-                @Equal(left = @Operand(alias = "s", column = Indexes.NAME), right = @Operand(param = "schema"))
+                @Equal(left = @Operand(alias = "c", column = Columns.NAME), right = @Operand(param = "column")),
+                @Equal(left = @Operand(alias = "t", column = Tables.NAME), right = @Operand(param = "table")),
+                @Equal(left = @Operand(alias = "s", column = Schemas.NAME), right = @Operand(param = "schema"))
         })
-        public final Long table_id;
+        public final Long column_id;
 
-        public Context(Long table_id) {
-            this.table_id = table_id;
+        public Context(Long column_id) {
+            this.column_id = column_id;
         }
     }
 
@@ -65,19 +57,15 @@ public class CreateColumn implements IAction<CreateColumn.Params, CreateColumn.C
         return Result.of(
                 new Event<>(
                         Service.POSTGRES,
-                        Service.Create.COLUMN,
-                        new org.service.action.schema.postgres.CreateColumn.Params(
+                        Service.Drop.COLUMN,
+                        new org.service.action.schema.postgres.DropColumn.Params(
                                 params.schema,
                                 params.table,
-                                params.name,
-                                params.type)),
+                                params.column)),
                 new Event<>(
                         Service.DEFINITION,
-                        Service.Create.COLUMN,
-                        new org.service.action.schema.definition.CreateColumn.Params(
-                                ctx.table_id,
-                                params.name,
-                                params.type)));
+                        Service.Drop.COLUMN,
+                        new org.service.action.schema.definition.DropColumn.Params(ctx.column_id)));
     }
 
 }

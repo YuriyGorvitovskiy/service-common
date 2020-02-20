@@ -4,6 +4,7 @@ import org.service.action.Action;
 import org.service.action.Equal;
 import org.service.action.From;
 import org.service.action.IAction;
+import org.service.action.Operand;
 import org.service.action.Result;
 import org.service.action.Where;
 import org.service.action.schema.Schema;
@@ -24,7 +25,7 @@ public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context
     public static class Params {
         public final Long id;
 
-        Params(Long id) {
+        public Params(Long id) {
             this.id = id;
         }
     }
@@ -32,7 +33,7 @@ public class DropColumn implements IAction<DropColumn.Params, DropColumn.Context
     public static class Context {
 
         @From(schema = Schema.NAME, table = Table.INDEX_COLUMNS)
-        @Where({ @Equal(column = IndexColumns.COLUMN, param = "id") })
+        @Where({ @Equal(left = @Operand(column = IndexColumns.COLUMN), right = @Operand(param = "id")) })
         public final List<DropIndex.Params> indexes;
 
         Context(List<DropIndex.Params> indexes) {

@@ -13,7 +13,7 @@ public class DropColumn implements IAction<DropColumn.Params, Context> {
         public final String table;
         public final String name;
 
-        Params(String schema, String table, String name) {
+        public Params(String schema, String table, String name) {
             this.schema = schema;
             this.table = table;
             this.name = name;

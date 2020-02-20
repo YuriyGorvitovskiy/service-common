@@ -6,6 +6,7 @@ import org.service.action.ForEach;
 import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Key;
+import org.service.action.Operand;
 import org.service.action.Result;
 import org.service.action.Where;
 import org.service.action.schema.Schema;
@@ -27,14 +28,14 @@ public class DropSchema implements IAction<DropSchema.Params, DropSchema.Context
     public static class Params {
         public final Long id;
 
-        Params(Long id) {
+        public Params(Long id) {
             this.id = id;
         }
     }
 
     public static class Context {
         @From(schema = Schema.NAME, table = Table.TABLES)
-        @Where({ @Equal(column = Tables.SCHEMA, param = "id") })
+        @Where({ @Equal(left = @Operand(column = Tables.SCHEMA), right = @Operand(param = "id")) })
         public final List<DropTable.Params> tables;
 
         @ForEach(context = "tables")
@@ -42,7 +43,7 @@ public class DropSchema implements IAction<DropSchema.Params, DropSchema.Context
         public final Map<Long, DropTable.Context> tableCtx;
 
         @From(schema = Schema.NAME, table = Table.SEQUENCES)
-        @Where({ @Equal(column = Sequences.SCHEMA, param = "id") })
+        @Where({ @Equal(left = @Operand(column = Sequences.SCHEMA), right = @Operand(param = "id")) })
         public final List<DropSequence.Params> sequences;
 
         Context(List<DropTable.Params> tables, Map<Long, DropTable.Context> tableCtx, List<DropSequence.Params> sequences) {

@@ -20,7 +20,7 @@ public class DropIndex implements IAction<DropIndex.Params, DropIndex.Context> {
     public static class Params {
         public final Long id;
 
-        Params(Long id) {
+        public Params(Long id) {
             this.id = id;
         }
     }

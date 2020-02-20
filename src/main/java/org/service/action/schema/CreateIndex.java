@@ -6,6 +6,7 @@ import org.service.action.Event;
 import org.service.action.From;
 import org.service.action.IAction;
 import org.service.action.Key;
+import org.service.action.Operand;
 import org.service.action.Result;
 import org.service.action.Select;
 import org.service.action.Where;
@@ -45,7 +46,7 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
 
     public static class Context {
         @From(schema = Schema.NAME, table = Table.SCHEMAS)
-        @Where({ @Equal(column = Schemas.NAME, param = "schema") })
+        @Where({ @Equal(left = @Operand(column = Schemas.NAME), right = @Operand(param = "schema")) })
         public final SchemaContext schema;
 
         public Context(SchemaContext schema) {
@@ -60,8 +61,8 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
 
         @From(schema = Schema.NAME, table = Table.TABLES)
         @Where({
-                @Equal(column = Tables.SCHEMA, context = "id"),
-                @Equal(column = Tables.NAME, param = "table")
+                @Equal(left = @Operand(column = Tables.SCHEMA), right = @Operand(context = "id")),
+                @Equal(left = @Operand(column = Tables.NAME), right = @Operand(param = "table"))
         })
         public final TableContext table;
 
@@ -78,8 +79,8 @@ public class CreateIndex implements IAction<CreateIndex.Params, CreateIndex.Cont
         @Select(Columns.ID)
         @From(schema = Schema.NAME, table = Table.COLUMNS)
         @Where({
-                @Equal(column = Columns.TABLE, context = "id"),
-                @Equal(column = Columns.NAME, param = "columns")
+                @Equal(left = @Operand(column = Columns.TABLE), right = @Operand(context = "id")),
+                @Equal(left = @Operand(column = Columns.NAME), right = @Operand(param = "columns"))
         })
         @Key(Columns.NAME)
         public final Map<String, Long> column_ids;

@@ -1,110 +1,70 @@
 package org.service.actions.patch;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.stream.Collectors;
 
 import org.service.action.Action;
 import org.service.action.Equal;
 import org.service.action.From;
 import org.service.action.IAction;
-import org.service.action.OrderBy;
+import org.service.action.Join;
+import org.service.action.Key;
+import org.service.action.Operand;
 import org.service.action.Result;
+import org.service.action.Select;
 import org.service.action.Where;
+import org.service.action.schema.Schema;
+import org.service.action.schema.Schema.Columns;
+import org.service.action.schema.Schema.Indexes;
+import org.service.action.schema.Schema.Schemas;
+import org.service.action.schema.Schema.Table;
+import org.service.action.schema.Schema.Tables;
+import org.service.dbc.DBConnection;
 import org.service.immutable.data.Row;
 import org.service.immutable.schema.DataType;
 
-import io.vavr.collection.List;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 
 @Action(service = "persistence", name = "delete")
 public class DeleteRow implements IAction<Row, DeleteRow.Context> {
 
-    public static class Column {
-
-        public final String   name;
-
-        public final DataType type;
-
-        Column(String name, DataType type) {
-            this.name = name;
-            this.type = type;
-        }
-    }
-
-    public static class Table {
-
-        public final Long         id;
-
-        public final String       name;
-
-        @From(schema = "model", table = "columns")
-        @Where({
-                @Equal(column = "table", context = "id"),
-        })
-        @OrderBy(column = "position")
-        public final List<Column> columns;
-
-        Table(Long id, String name, List<Column> columns) {
-            this.id = id;
-            this.name = name;
-            this.columns = columns;
-        }
-    }
-
-    public static class Schema {
-
-        public final Long   id;
-
-        public final String name;
-
-        @From(schema = "model", table = "tables")
-        @Where({
-                @Equal(column = "schema", context = "id"),
-                @Equal(column = "name", param = "table")
-        })
-        public final Table  table;
-
-        Schema(Long id, String name, Table table) {
-            this.id = id;
-            this.name = name;
-            this.table = table;
-        }
-    }
-
     public static class Context {
 
-        public final Connection dbc;
+        public final DBConnection dbc;
 
-        @From(schema = "model", table = "schemas")
-        @Where({
-                @Equal(column = "name", param = "schema")
+        @Select(alias = "c", value = Columns.TYPE)
+        @Join({
+                @From(schema = Schema.NAME, table = Table.COLUMNS, alias = "c"),
+                @From(schema = Schema.NAME, table = Table.TABLES, alias = "t", on = @Equal(left = @Operand(alias = "t", column = Tables.ID), right = @Operand(alias = "c", column = Indexes.TABLE))),
+                @From(schema = Schema.NAME, table = Table.SCHEMAS, alias = "s", on = @Equal(left = @Operand(alias = "s", column = Schemas.ID), right = @Operand(alias = "t", column = Tables.SCHEMA)))
         })
-        public final Schema     schema;
+        @Where({
+                @Equal(left = @Operand(alias = "t", column = Indexes.NAME), right = @Operand(param = "table")),
+                @Equal(left = @Operand(alias = "s", column = Indexes.NAME), right = @Operand(param = "schema"))
+        })
+        @Key(alias = "c", value = Columns.NAME)
+        public final Map<String, DataType> columns;
 
-        Context(Connection dbc, Schema schema) {
+        Context(DBConnection dbc, Map<String, DataType> columns) {
             this.dbc = dbc;
-            this.schema = schema;
+            this.columns = columns;
         }
 
     }
 
     @Override
     public Result apply(Row params, Context ctx) {
-        List<Column> columns = ctx.schema.table.columns.filter(c -> params.values.containsKey(c.name));
+        Set<String> columns = params.values.keySet();
 
-        String       dml     = "DELETE FROM " + params.schema + "." + params.table +
-                " WHERE " + columns.map(c -> c.name + " = ?").collect(Collectors.joining(" AND "));
+        String dml = "DELETE FROM " + params.schema + "." + params.table +
+                " WHERE " + columns.collect(Collectors.joining(" AND "));
 
-        try (PreparedStatement ps = ctx.dbc.prepareStatement(dml)) {
+        ctx.dbc.executeUpdate(dml, ps -> {
             int i = 1;
-            for (Column column : columns) {
-                column.type.set(ps, i++, params, column.name);
+            for (String column : columns) {
+                ctx.columns.get(column).get().set(ps, i++, params, column);
             }
-            ps.execute();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        });
         return Result.empty;
     }
 
