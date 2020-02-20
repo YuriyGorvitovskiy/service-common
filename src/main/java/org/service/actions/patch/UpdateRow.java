@@ -33,7 +33,7 @@ public class UpdateRow implements IAction<Row, UpdateRow.Context> {
 
         public final DBConnection dbc;
 
-        @Select(alias = "c", value = Columns.TYPE)
+        @Select(alias = "c", value = Columns.NAME)
         @Join({
                 @From(schema = Schema.NAME, table = Table.SCHEMAS, alias = "s"),
                 @From(schema = Schema.NAME, table = Table.TABLES, alias = "t", on = @Equal(left = @Operand(alias = "t", column = Tables.SCHEMA), right = @Operand(alias = "s", column = Schemas.ID))),
@@ -46,8 +46,7 @@ public class UpdateRow implements IAction<Row, UpdateRow.Context> {
                 @Equal(left = @Operand(alias = "t", column = Tables.NAME), right = @Operand(param = "table")),
                 @Equal(left = @Operand(alias = "i", column = Indexes.PRIMARY), right = @Operand(value = "true"))
         })
-        @Key(alias = "c", value = Columns.NAME)
-        public final Map<String, DataType> primary;
+        public final Set<String> primary;
 
         @Select(alias = "c", value = Columns.TYPE)
         @Join({
@@ -62,7 +61,7 @@ public class UpdateRow implements IAction<Row, UpdateRow.Context> {
         @Key(alias = "c", value = Columns.NAME)
         public final Map<String, DataType> columns;
 
-        Context(DBConnection dbc, Map<String, DataType> primary, Map<String, DataType> columns) {
+        Context(DBConnection dbc, Set<String> primary, Map<String, DataType> columns) {
             this.dbc = dbc;
             this.primary = primary;
             this.columns = columns;
@@ -72,21 +71,20 @@ public class UpdateRow implements IAction<Row, UpdateRow.Context> {
 
     @Override
     public Result apply(Row params, Context ctx) {
-        Set<String> primary = ctx.primary.keySet();
 
         Set<String> columns = ctx.columns.keySet()
-            .filter(c -> primary.contains(c));
+            .filter(c -> ctx.primary.contains(c));
 
         String dml = "UPDATE " + params.schema + "." + params.table + " SET " +
                 columns.map(c -> c + " = ?").collect(Collectors.joining(", ")) +
-                " WHERE " + primary.map(c -> c + " = ?").collect(Collectors.joining(" AND "));
+                " WHERE " + ctx.primary.map(c -> c + " = ?").collect(Collectors.joining(" AND "));
 
         ctx.dbc.executeUpdate(dml, ps -> {
             int i = 1;
             for (String column : columns) {
                 ctx.columns.get(column).get().set(ps, i++, params, column);
             }
-            for (String column : primary) {
+            for (String column : ctx.primary) {
                 ctx.columns.get(column).get().set(ps, i++, params, column);
             }
         });
