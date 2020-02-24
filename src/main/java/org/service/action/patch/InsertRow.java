@@ -1,7 +1,8 @@
-package org.service.actions.patch;
+package org.service.action.patch;
 
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.service.action.Action;
 import org.service.action.Equal;
 import org.service.action.From;
@@ -25,8 +26,8 @@ import org.service.immutable.schema.DataType;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 
-@Action(service = "persistence", name = "delete")
-public class DeleteRow implements IAction<Row, DeleteRow.Context> {
+@Action(service = "persistence", name = "insert")
+public class InsertRow implements IAction<Row, InsertRow.Context> {
 
     public static class Context {
 
@@ -49,15 +50,15 @@ public class DeleteRow implements IAction<Row, DeleteRow.Context> {
             this.dbc = dbc;
             this.columns = columns;
         }
-
     }
 
     @Override
     public Result apply(Row params, Context ctx) {
         Set<String> columns = params.values.keySet();
 
-        String dml = "DELETE FROM " + params.schema + "." + params.table +
-                " WHERE " + columns.collect(Collectors.joining(" AND "));
+        String dml = "INSERT INTO " + params.schema + "." + params.table + "(" +
+                columns.collect(Collectors.joining(", ")) +
+                ") VALUES (" + StringUtils.repeat("?", ", ", columns.size()) + ")";
 
         ctx.dbc.executeUpdate(dml, ps -> {
             int i = 1;
@@ -65,6 +66,7 @@ public class DeleteRow implements IAction<Row, DeleteRow.Context> {
                 ctx.columns.get(column).get().set(ps, i++, params, column);
             }
         });
+
         return Result.empty;
     }
 
