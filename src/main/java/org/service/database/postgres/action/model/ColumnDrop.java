@@ -15,6 +15,7 @@ public class ColumnDrop implements IColumnDrop<Context> {
     public List<Event<?>> apply(Params params, Context ctx) {
         String ddl = "ALTER TABLE " + params.schema + "." + params.table +
                 " DROP COLUMN " + params.name + " CASCADE";
+
         ctx.dbc.execute(ddl);
 
         return List.empty();

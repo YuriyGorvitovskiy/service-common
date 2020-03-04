@@ -24,7 +24,7 @@ public class Delete implements IDelete<Context> {
         ctx.dbc.executeUpdate(dml, ps -> {
             int i = 1;
             for (String column : columns) {
-                ctx.columnsType.get(column).get().set(ps, i++, params, column);
+                ctx.tableInfo.columnsType.get(column).get().set(ps, i++, params, column);
             }
         });
 
